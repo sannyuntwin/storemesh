@@ -1,0 +1,21 @@
+@import "tailwindcss";
+
+:root {
+  --color-bg: #f8fafc;
+  --color-text: #0f172a;
+  --font-sans: var(--font-manrope);
+  --font-display: var(--font-space-grotesk);
+}
+
+body {
+  background: radial-gradient(circle at top right, #e2e8f0 0%, #f8fafc 40%, #f8fafc 100%);
+  color: var(--color-text);
+  font-family: var(--font-sans), sans-serif;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display), sans-serif;
+}
