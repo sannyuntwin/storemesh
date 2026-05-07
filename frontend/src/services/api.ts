@@ -1,62 +1,310 @@
-import { products } from "@/data/products";
-import { CartLine, CartSummary, Product, SellerStat } from "@/types";
+import { products as mockProducts } from "@/data/products";
+import {
+  CartLine,
+  CartPayload,
+  CartSummary,
+  CreateOrderInput,
+  Order,
+  Product,
+  ProductInput,
+  SellerStat
+} from "@/types";
+import { fetchJson, shouldAllowMockFallback, shouldUseRemoteApi } from "@/services/fetcher";
 
-const API_LATENCY_MS = 550;
+const API_LATENCY_MS = 500;
 
-const wait = async (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+type ApiEnvelope<T> = {
+  success: boolean;
+  data: T;
+};
 
-const calculateCartSummary = (items: CartLine[]): CartSummary => {
-  const subtotal = items.reduce((total, item) => total + item.product.price * item.quantity, 0);
+export type ApiResult<T> = {
+  data: T;
+  usedFallback: boolean;
+};
+
+type BackendProduct = {
+  id: number | string;
+  sellerId?: number | string | null;
+  image: string;
+  title: string;
+  description: string;
+  unitPrice?: number;
+  quantity?: number;
+  createdAt?: string | Date;
+  price?: number;
+  stock?: number;
+};
+
+type BackendOrder = {
+  id: number;
+  buyerId: number;
+  status: string;
+  totalAmount: number;
+  createdAt?: string;
+  items: Array<{
+    id: number;
+    saleOrderId: number;
+    productId: number;
+    quantity: number;
+    unitPrice: number;
+    subtotal: number;
+  }>;
+};
+
+export const endpoints = {
+  products: "/products",
+  productById: (id: string) => `/products/${id}`,
+  orders: "/orders",
+  cart: "/cart",
+  sellerStats: "/seller/stats"
+};
+
+const wait = async (ms: number): Promise<void> => {
+  await new Promise((resolve) => setTimeout(resolve, ms));
+};
+
+const roundMoney = (value: number): number => Math.round(value * 100) / 100;
+
+const toProduct = (raw: BackendProduct): Product => {
+  const unitPrice = Number(raw.unitPrice ?? raw.price ?? 0);
+  const quantity = Number(raw.quantity ?? raw.stock ?? 0);
+
+  return {
+    id: String(raw.id),
+    sellerId: raw.sellerId !== undefined && raw.sellerId !== null ? String(raw.sellerId) : undefined,
+    image: raw.image,
+    title: raw.title,
+    description: raw.description,
+    unitPrice,
+    quantity,
+    createdAt: raw.createdAt ? new Date(raw.createdAt).toISOString() : undefined
+  };
+};
+
+const toOrder = (raw: BackendOrder): Order => ({
+  id: String(raw.id),
+  buyerId: String(raw.buyerId),
+  status: raw.status,
+  totalAmount: Number(raw.totalAmount),
+  createdAt: raw.createdAt,
+  items: raw.items.map((item) => ({
+    id: String(item.id),
+    saleOrderId: String(item.saleOrderId),
+    productId: String(item.productId),
+    quantity: item.quantity,
+    unitPrice: Number(item.unitPrice),
+    subtotal: Number(item.subtotal)
+  }))
+});
+
+export const calculateCartSummary = (items: CartLine[]): CartSummary => {
+  const subtotal = items.reduce((total, item) => total + item.product.unitPrice * item.quantity, 0);
   const shipping = subtotal > 0 ? 12 : 0;
   const tax = subtotal * 0.08;
 
   return {
-    subtotal,
-    shipping,
-    tax,
-    total: subtotal + shipping + tax
+    subtotal: roundMoney(subtotal),
+    shipping: roundMoney(shipping),
+    tax: roundMoney(tax),
+    total: roundMoney(subtotal + shipping + tax)
   };
 };
 
-export const api = {
-  async getProducts(): Promise<Product[]> {
-    await wait(API_LATENCY_MS);
-    return products;
-  },
+let localProducts: Product[] = [...mockProducts];
 
-  async getProductById(id: string): Promise<Product | null> {
-    await wait(API_LATENCY_MS / 2);
-    return products.find((product) => product.id === id) ?? null;
-  },
+const fallbackCartItems: CartLine[] = [
+  { product: mockProducts[0], quantity: 1 },
+  { product: mockProducts[2], quantity: 2 }
+];
 
-  async getCart(): Promise<{ items: CartLine[]; summary: CartSummary }> {
-    await wait(API_LATENCY_MS);
+const useMockFallback = async <T>(task: () => Promise<T>): Promise<T> => {
+  await wait(API_LATENCY_MS);
+  return task();
+};
 
-    const items: CartLine[] = [
-      { product: products[0], quantity: 1 },
-      { product: products[2], quantity: 2 }
-    ];
+const resolveWithFallback = async <T>(
+  remoteTask: () => Promise<T>,
+  fallbackTask: () => Promise<T>
+): Promise<ApiResult<T>> => {
+  const canUseRemote = shouldUseRemoteApi();
+
+  if (!canUseRemote) {
+    return {
+      data: await fallbackTask(),
+      usedFallback: true
+    };
+  }
+
+  try {
+    return {
+      data: await remoteTask(),
+      usedFallback: false
+    };
+  } catch (error) {
+    if (!shouldAllowMockFallback()) {
+      throw error;
+    }
 
     return {
-      items,
-      summary: calculateCartSummary(items)
+      data: await fallbackTask(),
+      usedFallback: true
     };
-  },
-
-  async getSellerStats(): Promise<SellerStat[]> {
-    await wait(API_LATENCY_MS / 2);
-
-    return [
-      { label: "Revenue", value: "$42,350", trend: "+12.4%" },
-      { label: "Orders", value: "1,084", trend: "+8.7%" },
-      { label: "Conversion", value: "3.9%", trend: "+0.6%" }
-    ];
   }
 };
 
-// Future API wiring point for real backend integration.
-export const endpoints = {
-  products: "/api/products",
-  cart: "/api/cart",
-  sellerStats: "/api/seller/stats"
+export const api = {
+  async getProductsWithMeta(): Promise<ApiResult<Product[]>> {
+    return resolveWithFallback(
+      async () => {
+        const response = await fetchJson<ApiEnvelope<BackendProduct[]>>(endpoints.products);
+        return response.data.map(toProduct);
+      },
+      () => useMockFallback(async () => localProducts)
+    );
+  },
+
+  async getProducts(): Promise<Product[]> {
+    const result = await this.getProductsWithMeta();
+    return result.data;
+  },
+
+  async getProductByIdWithMeta(id: string): Promise<ApiResult<Product | null>> {
+    return resolveWithFallback(
+      async () => {
+        const response = await fetchJson<ApiEnvelope<BackendProduct>>(endpoints.productById(id));
+        return toProduct(response.data);
+      },
+      () => useMockFallback(async () => localProducts.find((product) => product.id === id) ?? null)
+    );
+  },
+
+  async getProductById(id: string): Promise<Product | null> {
+    const result = await this.getProductByIdWithMeta(id);
+    return result.data;
+  },
+
+  async getCart(): Promise<CartPayload> {
+    const result = await this.getCartWithMeta();
+    return result.data;
+  },
+
+  async getCartWithMeta(): Promise<ApiResult<CartPayload>> {
+    return resolveWithFallback(
+      async () => {
+        const data = await fetchJson<ApiEnvelope<{ items: CartLine[] }>>(endpoints.cart);
+        return {
+          items: data.data.items,
+          summary: calculateCartSummary(data.data.items)
+        };
+      },
+      () =>
+        useMockFallback(async () => ({
+          items: fallbackCartItems,
+          summary: calculateCartSummary(fallbackCartItems)
+        }))
+    );
+  },
+
+  async getSellerStats(): Promise<SellerStat[]> {
+    const result = await this.getSellerStatsWithMeta();
+    return result.data;
+  },
+
+  async getSellerStatsWithMeta(): Promise<ApiResult<SellerStat[]>> {
+    return resolveWithFallback(
+      async () => {
+        const response = await fetchJson<ApiEnvelope<SellerStat[]>>(endpoints.sellerStats);
+        return response.data;
+      },
+      () =>
+        useMockFallback(async () => [
+          { label: "Revenue", value: "$42,350", trend: "+12.4%", trendDirection: "up" },
+          { label: "Orders", value: "1,084", trend: "+8.7%", trendDirection: "up" },
+          { label: "Returns", value: "1.1%", trend: "-0.3%", trendDirection: "down" }
+        ])
+    );
+  },
+
+  async createProduct(input: ProductInput): Promise<Product> {
+    const result = await resolveWithFallback(
+      async () => {
+        const payload = {
+          sellerId: Number(input.sellerId),
+          image: input.image,
+          title: input.title,
+          description: input.description,
+          unitPrice: input.unitPrice,
+          quantity: input.quantity
+        };
+
+        const response = await fetchJson<ApiEnvelope<BackendProduct>>(endpoints.products, {
+          method: "POST",
+          body: JSON.stringify(payload)
+        });
+
+        return toProduct(response.data);
+      },
+      () =>
+        useMockFallback(async () => {
+          const created: Product = {
+            id: String(Date.now()),
+            ...input
+          };
+          localProducts = [created, ...localProducts];
+          return created;
+        })
+    );
+
+    return result.data;
+  },
+
+  async createOrder(input: CreateOrderInput): Promise<Order> {
+    const result = await resolveWithFallback(
+      async () => {
+        const payload = {
+          buyerId: Number(input.buyerId),
+          totalAmount: input.totalAmount,
+          items: input.items.map((item) => ({
+            productId: Number(item.productId),
+            quantity: item.quantity
+          }))
+        };
+
+        const response = await fetchJson<ApiEnvelope<BackendOrder>>(endpoints.orders, {
+          method: "POST",
+          body: JSON.stringify(payload)
+        });
+
+        return toOrder(response.data);
+      },
+      () =>
+        useMockFallback(async () => {
+          const fallbackOrderId = String(Date.now());
+          const createdAt = new Date().toISOString();
+
+          return {
+            id: fallbackOrderId,
+            buyerId: input.buyerId,
+            status: "PENDING",
+            totalAmount: input.totalAmount,
+            createdAt,
+            items: input.items.map((item, index) => {
+              const unitPrice = localProducts.find((product) => product.id === item.productId)?.unitPrice ?? 0;
+
+              return {
+                id: String(index + 1),
+                saleOrderId: fallbackOrderId,
+                productId: item.productId,
+                quantity: item.quantity,
+                unitPrice,
+                subtotal: unitPrice * item.quantity
+              };
+            })
+          };
+        })
+    );
+
+    return result.data;
+  }
 };

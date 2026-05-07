@@ -1,9 +1,11 @@
 import { LoadingGrid } from "@/components/LoadingGrid";
+import { LoadingSkeleton } from "@/components/LoadingSkeleton";
 
 export default function Loading() {
   return (
     <div className="space-y-6">
-      <div className="h-9 w-52 animate-pulse rounded bg-slate-200" />
+      <LoadingSkeleton className="h-8 w-64" />
+      <LoadingSkeleton className="h-24 w-full rounded-3xl" rounded="xl" />
       <LoadingGrid />
     </div>
   );

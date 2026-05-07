@@ -1,95 +1,61 @@
 # Storemesh Frontend
 
-Modern e-commerce frontend scaffold built with **Next.js 15 (App Router)**, **TypeScript**, and **Tailwind CSS**. It starts with mock data and an async service layer, so it is ready to connect to a real backend API later.
+Modern Next.js storefront for Storemesh with API-first integration and graceful mock fallback.
 
-## Features
-
-- Responsive desktop, tablet, and mobile layout
-- Modern minimal shop UI with soft shadows and rounded cards
-- Reusable component-based architecture
-- Product listing grid and product detail pages
-- Cart page with order summary + empty state handling
-- Seller dashboard with performance cards and inventory table
-- Add Product form page
-- Route-level loading states and reusable skeletons
-- Mock-first data flow through `services/api.ts`
-
-## Tech Stack
+## Stack
 
 - Next.js 15 (App Router)
-- React 19
 - TypeScript
 - Tailwind CSS v4
 
-## Project Structure
+## Features
 
-```text
-src/
-  app/
-    cart/
-      page.tsx
-    products/[id]/
-      loading.tsx
-      page.tsx
-    seller/add-product/
-      page.tsx
-    seller/dashboard/
-      page.tsx
-    globals.css
-    layout.tsx
-    loading.tsx
-    page.tsx
-  components/
-    Button.tsx
-    CartItem.tsx
-    EmptyState.tsx
-    LoadingGrid.tsx
-    Navbar.tsx
-    ProductCard.tsx
-    ProductGrid.tsx
-    Sidebar.tsx
-  data/
-    products.ts
-  services/
-    api.ts
-  types/
-    index.ts
-```
-
-## Page Routes
-
-- `/` - Home / Product Listing
-- `/products/[id]` - Product Detail
-- `/cart` - Cart
-- `/seller/dashboard` - Seller Dashboard
-- `/seller/add-product` - Add Product Form
+- Responsive product listing and product detail experience
+- Cart flow with quantity controls and order submission
+- Seller dashboard and add-product flow
+- Loading skeletons, empty states, error states, and toast notifications
+- API service abstraction with fallback to local mock data
 
 ## Setup
 
-1. Install dependencies:
+Start backend + database first (from repo root):
+
+```bash
+docker compose up --build
+```
+
+Then run frontend:
 
 ```bash
 npm install
-```
-
-2. Start development server:
-
-```bash
+cp .env.example .env.local
 npm run dev
 ```
 
-3. Open:
+Open `http://localhost:3000`.
 
-```text
-http://localhost:3000
+## Environment Variables
+
+```env
+NEXT_PUBLIC_API_URL=http://localhost:5000
+NEXT_PUBLIC_ENABLE_MOCK_FALLBACK=true
 ```
 
-## Backend Integration Plan
+- `NEXT_PUBLIC_API_URL`: backend base URL (frontend appends `/api`)
+- `NEXT_PUBLIC_ENABLE_MOCK_FALLBACK`: fallback to mock data when backend is unavailable
 
-The file `src/services/api.ts` is intentionally asynchronous and centralized.
+## API Integration
 
-To connect a real backend later:
+- Service files: `src/services/fetcher.ts`, `src/services/api.ts`
+- Pattern:
+  1. call backend API
+  2. if request fails and fallback enabled, return local mock data
+  3. display warning banner when fallback is active
 
-1. Replace mock return values in `api.getProducts`, `api.getProductById`, `api.getCart`, and `api.getSellerStats` with real `fetch` calls.
-2. Keep UI pages/components unchanged because they already consume the service abstraction.
-3. Update endpoint constants in `endpoints` as backend routes become available.
+## Vercel Deployment
+
+- Root directory: `frontend`
+- Build command: `npm run build`
+- Set env vars:
+  - `NEXT_PUBLIC_API_URL=https://<your-backend-domain>`
+  - `NEXT_PUBLIC_ENABLE_MOCK_FALLBACK=false`

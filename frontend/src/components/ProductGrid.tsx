@@ -1,6 +1,6 @@
-import { Product } from "@/types";
 import { ProductCard } from "@/components/ProductCard";
 import { EmptyState } from "@/components/EmptyState";
+import { Product } from "@/types";
 
 interface ProductGridProps {
   products: Product[];
@@ -11,13 +11,13 @@ export function ProductGrid({ products }: ProductGridProps) {
     return (
       <EmptyState
         title="No products available"
-        description="Try checking back later or update your search filters."
+        description="Try again in a moment. New products are synced continuously."
       />
     );
   }
 
   return (
-    <section className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <section className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
       {products.map((product) => (
         <ProductCard key={product.id} product={product} />
       ))}

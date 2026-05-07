@@ -1,16 +1,19 @@
+import { LoadingSkeleton } from "@/components/LoadingSkeleton";
+
 export function LoadingGrid() {
   return (
-    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+    <div className="grid gap-6 sm:grid-cols-2 xl:grid-cols-3">
       {Array.from({ length: 6 }).map((_, index) => (
-        <div
-          key={index}
-          className="h-80 animate-pulse rounded-2xl border border-slate-200 bg-white p-4 shadow-sm"
-        >
-          <div className="h-44 rounded-xl bg-slate-200" />
-          <div className="mt-4 h-4 w-2/3 rounded bg-slate-200" />
-          <div className="mt-2 h-3 w-full rounded bg-slate-100" />
-          <div className="mt-2 h-3 w-5/6 rounded bg-slate-100" />
-          <div className="mt-4 h-9 w-28 rounded-xl bg-slate-200" />
+        <div key={index} className="surface-card p-4">
+          <LoadingSkeleton className="h-52 w-full" rounded="xl" />
+          <LoadingSkeleton className="mt-4 h-4 w-20" />
+          <LoadingSkeleton className="mt-3 h-6 w-4/5" />
+          <LoadingSkeleton className="mt-2 h-4 w-full" />
+          <LoadingSkeleton className="mt-2 h-4 w-3/4" />
+          <div className="mt-5 flex items-center justify-between">
+            <LoadingSkeleton className="h-7 w-20" />
+            <LoadingSkeleton className="h-10 w-28" rounded="xl" />
+          </div>
         </div>
       ))}
     </div>
