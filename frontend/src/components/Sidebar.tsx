@@ -13,7 +13,7 @@ export function Sidebar() {
 
   return (
     <aside className="surface-card p-4 lg:sticky lg:top-24 lg:h-fit">
-      <p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-slate-500">Seller Panel</p>
+      <p className="mb-3 text-xs font-bold uppercase tracking-[0.18em] text-[#0a3f82]">Seller Panel</p>
       <nav className="space-y-1">
         {links.map((link) => {
           const active = pathname.startsWith(link.href);
@@ -23,7 +23,7 @@ export function Sidebar() {
               href={link.href}
               className={[
                 "block rounded-xl px-3 py-2 text-sm font-semibold transition",
-                active ? "bg-slate-900 text-white" : "text-slate-700 hover:bg-slate-100"
+                active ? "bg-[#0b4f9f] text-white" : "text-[#0a3f82] hover:bg-[#eaf2fd]"
               ].join(" ")}
             >
               {link.label}

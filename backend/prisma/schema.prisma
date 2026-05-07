@@ -1,0 +1,123 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  BUYER
+  SELLER
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  SHIPPED
+  DELIVERED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  DEBIT_CARD
+  BANK_TRANSFER
+  CASH_ON_DELIVERY
+  EWALLET
+}
+
+model User {
+  id        Int         @id @default(autoincrement())
+  username  String
+  email     String      @unique
+  address   String?
+  role      UserRole    @default(BUYER)
+  googleId  String?     @unique
+  createdAt DateTime    @default(now())
+
+  products  Product[]   @relation("SellerProducts")
+  saleOrders SaleOrder[] @relation("BuyerOrders")
+}
+
+model Product {
+  id          Int             @id @default(autoincrement())
+  sellerId    Int
+  image       String
+  title       String
+  description String
+  unitPrice   Decimal         @db.Decimal(10, 2)
+  quantity    Int
+  createdAt   DateTime        @default(now())
+
+  seller       User           @relation("SellerProducts", fields: [sellerId], references: [id])
+  saleOrderItems SaleOrderItem[]
+  stockLogs    StockLog[]
+
+  @@index([sellerId])
+}
+
+model SaleOrder {
+  id          Int            @id @default(autoincrement())
+  buyerId     Int
+  status      OrderStatus    @default(PENDING)
+  totalAmount Decimal        @db.Decimal(10, 2)
+  createdAt   DateTime       @default(now())
+
+  buyer         User          @relation("BuyerOrders", fields: [buyerId], references: [id])
+  items         SaleOrderItem[]
+  payments      Payment[]
+  shippingLabel ShippingLabel?
+
+  @@index([buyerId])
+}
+
+model SaleOrderItem {
+  id          Int       @id @default(autoincrement())
+  saleOrderId Int
+  productId   Int
+  quantity    Int
+  unitPrice   Decimal   @db.Decimal(10, 2)
+  subtotal    Decimal   @db.Decimal(10, 2)
+
+  saleOrder SaleOrder @relation(fields: [saleOrderId], references: [id], onDelete: Cascade)
+  product   Product   @relation(fields: [productId], references: [id])
+
+  @@index([saleOrderId])
+  @@index([productId])
+}
+
+model Payment {
+  id            Int           @id @default(autoincrement())
+  saleOrderId   Int
+  amount        Decimal       @db.Decimal(10, 2)
+  paymentMethod PaymentMethod
+  paymentDate   DateTime      @default(now())
+
+  saleOrder SaleOrder @relation(fields: [saleOrderId], references: [id], onDelete: Cascade)
+
+  @@index([saleOrderId])
+}
+
+model StockLog {
+  id            Int      @id @default(autoincrement())
+  productId     Int
+  quantityAdded Int
+  createdAt     DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@index([productId])
+}
+
+model ShippingLabel {
+  id               Int      @id @default(autoincrement())
+  saleOrderId      Int      @unique
+  trackingNo       String   @unique
+  recipientAddress String
+  printedAt        DateTime?
+
+  saleOrder SaleOrder @relation(fields: [saleOrderId], references: [id], onDelete: Cascade)
+}

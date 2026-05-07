@@ -20,6 +20,59 @@ const CART_STORAGE_KEY = "storemesh_cart";
 
 const CartContext = createContext<CartContextValue | null>(null);
 
+const normalizeCartLines = (value: unknown): CartLine[] => {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .map((line) => {
+      if (typeof line !== "object" || line === null) {
+        return null;
+      }
+
+      const candidate = line as {
+        quantity?: unknown;
+        product?: Record<string, unknown>;
+      };
+
+      if (!candidate.product || typeof candidate.product !== "object") {
+        return null;
+      }
+
+      const raw = candidate.product;
+      const id = String(raw.id ?? "").trim();
+      const title = String(raw.title ?? "").trim();
+      const description = String(raw.description ?? "").trim();
+      const image = String(raw.image ?? "").trim();
+
+      if (!id || !title || !description || !image) {
+        return null;
+      }
+
+      const parsedUnitPrice = Number(raw.unitPrice ?? raw.price ?? 0);
+      const parsedQuantity = Number(raw.quantity ?? raw.stock ?? 0);
+      const lineQuantity = Number(candidate.quantity ?? 1);
+
+      const product: Product = {
+        id,
+        sellerId: raw.sellerId !== undefined && raw.sellerId !== null ? String(raw.sellerId) : undefined,
+        createdAt: raw.createdAt ? String(raw.createdAt) : undefined,
+        unitPrice: Number.isFinite(parsedUnitPrice) ? parsedUnitPrice : 0,
+        quantity: Number.isInteger(parsedQuantity) ? parsedQuantity : 0,
+        image,
+        title,
+        description
+      };
+
+      return {
+        product,
+        quantity: Number.isInteger(lineQuantity) && lineQuantity > 0 ? lineQuantity : 1
+      } as CartLine;
+    })
+    .filter((line): line is CartLine => line !== null);
+};
+
 const readStorage = (): CartLine[] => {
   if (typeof window === "undefined") {
     return [];
@@ -31,13 +84,8 @@ const readStorage = (): CartLine[] => {
       return [];
     }
 
-    const parsed = JSON.parse(stored) as CartLine[];
-
-    if (!Array.isArray(parsed)) {
-      return [];
-    }
-
-    return parsed;
+    const parsed = JSON.parse(stored) as unknown;
+    return normalizeCartLines(parsed);
   } catch {
     return [];
   }
@@ -113,7 +161,8 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
       if (current.length > 0) {
         return current;
       }
-      return lines;
+
+      return normalizeCartLines(lines);
     });
   };
 

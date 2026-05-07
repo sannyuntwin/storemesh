@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { CartItem } from "@/components/CartItem";
 import { CartSummary } from "@/components/CartSummary";
 import { EmptyState } from "@/components/EmptyState";
+import { mockSession } from "@/config/session";
 import { useCart } from "@/hooks/useCart";
 import { CartLine } from "@/types";
 import { api } from "@/services/api";
@@ -15,8 +16,6 @@ interface CartPageClientProps {
   initialItems: CartLine[];
   usedFallback?: boolean;
 }
-
-const DEFAULT_BUYER_ID = "2";
 
 export function CartPageClient({ initialItems, usedFallback = false }: CartPageClientProps) {
   const { items, updateQuantity, removeItem, hydrateFromServer, summary, isHydrated, clearCart } = useCart();
@@ -42,7 +41,7 @@ export function CartPageClient({ initialItems, usedFallback = false }: CartPageC
 
     try {
       const orderPayload = {
-        buyerId: DEFAULT_BUYER_ID,
+        buyerId: mockSession.buyerId,
         totalAmount: summary.total,
         items: items.map((line) => ({
           productId: line.product.id,

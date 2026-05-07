@@ -1,0 +1,113 @@
+@baseUrl = http://localhost:5000/api
+
+### Health
+GET {{baseUrl}}/health
+
+### Cart preview
+GET {{baseUrl}}/cart
+
+### Seller stats
+GET {{baseUrl}}/seller/stats
+
+### Google auth mock flow
+POST {{baseUrl}}/auth/google
+Content-Type: application/json
+
+{
+  "googleId": "google_123",
+  "email": "user@example.com",
+  "username": "Demo User"
+}
+
+### Google-authenticated buyer registration sync (idempotent)
+POST {{baseUrl}}/auth/google/register
+Content-Type: application/json
+
+{
+  "googleId": "google_123",
+  "providerAccountId": "google_123",
+  "email": "user@example.com",
+  "username": "Demo User",
+  "address": "12 Lake Rd, Springfield"
+}
+
+### Get products
+GET {{baseUrl}}/products
+
+### Get product by id
+GET {{baseUrl}}/products/1
+
+### Create product
+POST {{baseUrl}}/products
+Content-Type: application/json
+
+{
+  "sellerId": 1,
+  "image": "https://images.unsplash.com/photo-1517336714739-489689fd1ca8",
+  "title": "Laptop Stand",
+  "description": "Adjustable aluminum stand",
+  "unitPrice": 35.5,
+  "quantity": 20
+}
+
+### Update product
+PUT {{baseUrl}}/products/1
+Content-Type: application/json
+
+{
+  "title": "Wireless Headphones Pro",
+  "unitPrice": 99.99
+}
+
+### Add stock
+POST {{baseUrl}}/products/1/stock
+Content-Type: application/json
+
+{
+  "quantityAdded": 10
+}
+
+### Set inventory quantity
+PATCH {{baseUrl}}/products/1/inventory
+Content-Type: application/json
+
+{
+  "quantity": 100
+}
+
+### Delete product
+DELETE {{baseUrl}}/products/3
+
+### Create order
+POST {{baseUrl}}/orders
+Content-Type: application/json
+
+{
+  "buyerId": 2,
+  "items": [
+    { "productId": 1, "quantity": 1 },
+    { "productId": 2, "quantity": 2 }
+  ]
+}
+
+### Get order by id
+GET {{baseUrl}}/orders/1
+
+### Create shipping label for order
+POST {{baseUrl}}/orders/1/shipping-label
+Content-Type: application/json
+
+{
+  "recipientAddress": "12 Lake Rd, Springfield",
+  "trackingNo": "TRK-20260507-1001"
+}
+
+### Create payment
+POST {{baseUrl}}/payments
+Content-Type: application/json
+
+{
+  "saleOrderId": 1,
+  "amount": 208.99,
+  "paymentMethod": "CREDIT_CARD"
+}

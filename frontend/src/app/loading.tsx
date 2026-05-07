@@ -1,12 +1,5 @@
-import { LoadingGrid } from "@/components/LoadingGrid";
-import { LoadingSkeleton } from "@/components/LoadingSkeleton";
+import { FullScreenLoader } from "@/components/FullScreenLoader";
 
 export default function Loading() {
-  return (
-    <div className="space-y-6">
-      <LoadingSkeleton className="h-8 w-64" />
-      <LoadingSkeleton className="h-24 w-full rounded-3xl" rounded="xl" />
-      <LoadingGrid />
-    </div>
-  );
+  return <FullScreenLoader label="Loading products..." />;
 }

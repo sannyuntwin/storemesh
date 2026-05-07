@@ -1,0 +1,87 @@
+
+> frontend@0.1.0 dev
+> next dev
+
+   ▲ Next.js 15.5.16
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.88.190:3000
+   - Environments: .env.local
+
+ ✓ Starting...
+ ✓ Ready in 2.7s
+ ○ Compiling / ...
+ ✓ Compiled / in 7.4s (727 modules)
+ GET / 200 in 8108ms
+ GET / 200 in 363ms
+ ○ Compiling /api/auth/[...nextauth] ...
+ ✓ Compiled /cart in 5.6s (853 modules)
+ GET /cart 200 in 4263ms
+ GET /cart 200 in 119ms
+ GET /cart 200 in 43ms
+ GET /api/auth/session 200 in 6942ms
+ GET /api/auth/session 200 in 38ms
+ ○ Compiling /seller/dashboard ...
+ ✓ Compiled /seller/dashboard in 1213ms (862 modules)
+ GET /seller/dashboard 200 in 1430ms
+ ○ Compiling /login ...
+ ✓ Compiled /login in 1290ms (873 modules)
+ GET /login?callbackUrl=%2Fseller%2Fdashboard 200 in 1426ms
+ GET /login?callbackUrl=%2Fseller%2Fdashboard 200 in 48ms
+ GET / 200 in 516ms
+ GET /api/auth/session 200 in 89ms
+ GET /api/auth/session 200 in 27ms
+ GET /api/auth/csrf 200 in 38ms
+ POST /api/auth/signout 200 in 21ms
+ GET / 200 in 329ms
+ GET /api/auth/session 200 in 20ms
+ GET /api/auth/session 200 in 15ms
+ GET / 200 in 269ms
+ GET /api/auth/session 200 in 38ms
+ GET /api/auth/session 200 in 14ms
+ GET /login 200 in 43ms
+ GET /login 200 in 41ms
+ GET /login 200 in 38ms
+ GET /login 200 in 176ms
+ GET /api/auth/session 200 in 49ms
+ GET /api/auth/session 200 in 14ms
+ GET /login 200 in 184ms
+ GET /api/auth/session 200 in 46ms
+ GET /api/auth/session 200 in 14ms
+ GET /login 200 in 194ms
+ GET /api/auth/session 200 in 38ms
+ GET /api/auth/session 200 in 15ms
+ GET /login 200 in 185ms
+ GET /api/auth/session 200 in 38ms
+ GET /api/auth/session 200 in 16ms
+ GET /login 200 in 258ms
+ GET /api/auth/session 200 in 39ms
+ GET /api/auth/session 200 in 15ms
+ ✓ Compiled in 1272ms (288 modules)
+ GET /login?callbackUrl=%2Fseller%2Fdashboard 200 in 290ms
+ GET /login 200 in 291ms
+ ✓ Compiled in 1433ms (288 modules)
+ GET /login 200 in 149ms
+ GET /login?callbackUrl=%2Fseller%2Fdashboard 200 in 146ms
+ ✓ Compiled in 2.3s (862 modules)
+ GET /login 200 in 399ms
+ GET /login?callbackUrl=%2Fseller%2Fdashboard 200 in 394ms
+ ✓ Compiled in 1268ms (288 modules)
+ GET /login?callbackUrl=%2Fseller%2Fdashboard 200 in 119ms
+ GET /login 200 in 131ms
+ ✓ Compiled in 1247ms (288 modules)
+ GET /login 200 in 124ms
+ GET /login?callbackUrl=%2Fseller%2Fdashboard 200 in 119ms
+ ✓ Compiled in 1356ms (288 modules)
+ GET /login?callbackUrl=%2Fseller%2Fdashboard 200 in 105ms
+ GET /login 200 in 114ms
+ ✓ Compiled in 1263ms (288 modules)
+ GET /login?callbackUrl=%2Fseller%2Fdashboard 200 in 95ms
+ GET /login 200 in 104ms
+ ○ Compiling /_error ...
+ ✓ Compiled /_error in 2.8s (1195 modules)
+ GET /login?callbackUrl=%2Fseller%2Fdashboard 200 in 1934ms
+ GET /login 200 in 1934ms
+ GET /login?callbackUrl=/seller/dashboard 500 in 7831ms
+ GET /login?callbackUrl=%2Fseller%2Fdashboard 200 in 264ms
+ GET /login 200 in 269ms
+[?25h

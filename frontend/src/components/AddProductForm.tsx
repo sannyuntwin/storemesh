@@ -4,12 +4,13 @@ import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/Button";
 import { useToast } from "@/components/ToastProvider";
+import { mockSession } from "@/config/session";
 import { api } from "@/services/api";
 import { ProductInput } from "@/types";
 import { getErrorMessage } from "@/utils/errorMessage";
 
 const initialForm: ProductInput = {
-  sellerId: "1",
+  sellerId: mockSession.sellerId,
   title: "",
   unitPrice: 0,
   quantity: 0,

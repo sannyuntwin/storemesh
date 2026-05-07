@@ -8,7 +8,7 @@ export default function NotFound() {
       <p className="mt-2 text-sm text-slate-600">The product you are looking for does not exist or is no longer available.</p>
       <Link
         href="/"
-        className="mt-5 inline-flex items-center rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-700"
+        className="mt-5 inline-flex items-center rounded-xl bg-[#0b4f9f] px-4 py-2 text-sm font-semibold text-white transition hover:bg-[#0e62c4]"
       >
         Back to shop
       </Link>

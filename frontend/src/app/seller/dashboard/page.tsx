@@ -1,5 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { auth } from "@/auth";
 import { ErrorState } from "@/components/ErrorState";
 import { Sidebar } from "@/components/Sidebar";
 import { api } from "@/services/api";
@@ -9,6 +11,12 @@ export const metadata: Metadata = {
 };
 
 export default async function SellerDashboardPage() {
+  const session = await auth();
+
+  if (!session?.user) {
+    redirect("/login?callbackUrl=/seller/dashboard");
+  }
+
   try {
     const [statsResult, productsResult] = await Promise.all([api.getSellerStatsWithMeta(), api.getProductsWithMeta()]);
     const stats = statsResult.data;
@@ -47,7 +55,7 @@ export default async function SellerDashboardPage() {
               <h2 className="text-lg font-bold text-slate-900">Products</h2>
               <Link
                 href="/seller/add-product"
-                className="rounded-xl bg-slate-900 px-3 py-2 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-slate-700"
+                className="rounded-xl bg-[#0b4f9f] px-3 py-2 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#0e62c4]"
               >
                 Add Product
               </Link>

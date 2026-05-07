@@ -11,6 +11,10 @@ interface CartItemProps {
 }
 
 export function CartItem({ item, onIncrease, onDecrease, onRemove }: CartItemProps) {
+  const unitPrice = Number(item.product.unitPrice);
+  const safeUnitPrice = Number.isFinite(unitPrice) ? unitPrice : 0;
+  const lineTotal = safeUnitPrice * item.quantity;
+
   return (
     <article className="surface-card flex flex-col gap-4 p-4 sm:flex-row sm:items-center">
       <div className="relative h-24 w-24 shrink-0 overflow-hidden rounded-2xl bg-slate-100">
@@ -21,7 +25,7 @@ export function CartItem({ item, onIncrease, onDecrease, onRemove }: CartItemPro
         <Link href={`/products/${item.product.id}`} className="line-clamp-1 text-base font-bold text-slate-900">
           {item.product.title}
         </Link>
-        <p className="mt-1 text-sm text-slate-500">${item.product.unitPrice.toFixed(2)} each</p>
+        <p className="mt-1 text-sm text-slate-500">${safeUnitPrice.toFixed(2)} each</p>
 
         <div className="mt-3 flex items-center gap-2">
           <Button variant="secondary" size="sm" onClick={onDecrease}>
@@ -37,7 +41,7 @@ export function CartItem({ item, onIncrease, onDecrease, onRemove }: CartItemPro
       </div>
 
       <div className="flex items-center justify-between gap-2 sm:flex-col sm:items-end">
-        <p className="text-base font-black text-slate-900">${(item.product.unitPrice * item.quantity).toFixed(2)}</p>
+        <p className="text-base font-black text-slate-900">${lineTotal.toFixed(2)}</p>
         <Button variant="ghost" size="sm" onClick={onRemove}>
           Remove
         </Button>

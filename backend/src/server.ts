@@ -1,0 +1,12 @@
+import app from "./app";
+import { PORT } from "./config/env";
+
+const server = app.listen(PORT, () => {
+  console.log(`Server listening on http://localhost:${PORT}`);
+});
+
+process.on("SIGTERM", () => {
+  server.close(() => {
+    process.exit(0);
+  });
+});

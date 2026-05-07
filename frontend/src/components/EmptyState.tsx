@@ -19,7 +19,7 @@ export function EmptyState({ title, description, actionLabel, actionHref, emoji 
       {actionLabel && actionHref ? (
         <Link
           href={actionHref}
-          className="mt-5 inline-flex items-center rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-slate-700"
+          className="mt-5 inline-flex items-center rounded-xl bg-[#0b4f9f] px-4 py-2 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#0e62c4]"
         >
           {actionLabel}
         </Link>

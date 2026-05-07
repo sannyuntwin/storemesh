@@ -13,6 +13,8 @@ Modern Next.js storefront for Storemesh with API-first integration and graceful 
 - Responsive product listing and product detail experience
 - Cart flow with quantity controls and order submission
 - Seller dashboard and add-product flow
+- Auth.js sign-in with either email/password (demo credentials) or Google OAuth
+- Google session-to-backend registration sync (`POST /api/auth/google/register`) with address completion flow
 - Loading skeletons, empty states, error states, and toast notifications
 - API service abstraction with fallback to local mock data
 
@@ -39,10 +41,28 @@ Open `http://localhost:3000`.
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:5000
 NEXT_PUBLIC_ENABLE_MOCK_FALLBACK=true
+AUTH_SECRET=replace_with_a_long_random_secret
+GOOGLE_CLIENT_ID=replace_with_google_client_id
+GOOGLE_CLIENT_SECRET=replace_with_google_client_secret
+AUTH_DEMO_EMAIL=seller@storemesh.local
+AUTH_DEMO_PASSWORD=storemesh123
 ```
 
 - `NEXT_PUBLIC_API_URL`: backend base URL (frontend appends `/api`)
 - `NEXT_PUBLIC_ENABLE_MOCK_FALLBACK`: fallback to mock data when backend is unavailable
+- `AUTH_SECRET`: Auth.js session secret
+- `GOOGLE_CLIENT_ID`: Google OAuth client id
+- `GOOGLE_CLIENT_SECRET`: Google OAuth client secret
+- `AUTH_DEMO_EMAIL`: demo email for credentials sign-in
+- `AUTH_DEMO_PASSWORD`: demo password for credentials sign-in
+
+## Google OAuth Setup
+
+1. Create OAuth credentials in Google Cloud Console (`OAuth 2.0 Client ID`).
+2. Add redirect URI:
+   `http://localhost:3000/api/auth/callback/google`
+3. Put credentials in `frontend/.env.local`.
+4. Restart the app and use `/login` for either credentials or Google sign-in.
 
 ## API Integration
 

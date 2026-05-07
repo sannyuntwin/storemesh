@@ -7,9 +7,9 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses: Record<NonNullable<ButtonProps["variant"]>, string> = {
-  primary: "bg-slate-900 text-white shadow-sm hover:-translate-y-0.5 hover:bg-slate-700 hover:shadow",
-  secondary: "bg-slate-100 text-slate-900 hover:bg-slate-200",
-  ghost: "bg-transparent text-slate-700 hover:bg-slate-100",
+  primary: "bg-[#0b4f9f] text-white shadow-sm hover:-translate-y-0.5 hover:bg-[#0e62c4] hover:shadow",
+  secondary: "bg-[#e7eef8] text-[#0a3f82] hover:bg-[#dbe8f7]",
+  ghost: "bg-transparent text-[#0a3f82] hover:bg-[#eaf2fd]",
   danger: "bg-rose-600 text-white shadow-sm hover:-translate-y-0.5 hover:bg-rose-500 hover:shadow"
 };
 
@@ -32,7 +32,7 @@ export function Button({
     <button
       className={[
         "inline-flex items-center justify-center gap-2 rounded-xl font-semibold transition-all duration-200 active:translate-y-0",
-        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-slate-300",
+        "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue-300",
         "disabled:cursor-not-allowed disabled:opacity-60",
         variantClasses[variant],
         sizeClasses[size],
