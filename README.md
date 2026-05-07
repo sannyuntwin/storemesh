@@ -25,7 +25,7 @@ Assessment-ready full-stack e-commerce project with a responsive frontend, REST 
 - Product and inventory management (`/products`, stock/inventory endpoints)
 - Sale order creation with stock validation (stock is reduced at shipping step)
 - Payment recording with partial payment support (multiple payments per order)
-- Shipping label creation workflow (`POST /orders/:id/shipping-label`) with inventory reduction and stock logs
+- Shipping label creation + print workflow (`POST /orders/:id/shipping-label`, `GET /orders/:id/shipping-label/print`) with inventory reduction and stock logs
 - Real Google-authenticated buyer registration sync (`POST /auth/google/register`) plus profile completion flow
 
 ### Documentation
@@ -126,6 +126,7 @@ flowchart LR
 
 - `POST /api/orders` validates stock availability and creates order records.
 - `POST /api/orders/:id/shipping-label` performs shipment workflow and reduces inventory quantities in a transaction.
+- `GET /api/orders/:id/shipping-label/print` returns a print-ready label page for parcel attachment.
 
 ## How to Test in 3 Minutes
 
@@ -192,6 +193,9 @@ curl -X POST http://localhost:5000/api/orders \
 curl -X POST http://localhost:5000/api/orders/1/shipping-label \
   -H "Content-Type: application/json" \
   -d '{"recipientAddress":"12 Lake Rd, Springfield","trackingNo":"TRK-TEST-001"}'
+
+# GET /api/orders/:id/shipping-label/print
+curl http://localhost:5000/api/orders/1/shipping-label/print
 
 # POST /api/payments
 curl -X POST http://localhost:5000/api/payments \

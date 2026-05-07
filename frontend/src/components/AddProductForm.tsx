@@ -2,6 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import { Button } from "@/components/Button";
 import { useToast } from "@/components/ToastProvider";
 import { mockSession } from "@/config/session";
@@ -23,8 +24,11 @@ export function AddProductForm() {
   const { pushToast } = useToast();
   const [form, setForm] = useState<ProductInput>(initialForm);
   const [isSaving, setIsSaving] = useState(false);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
+  const [uploadMessage, setUploadMessage] = useState("");
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -46,6 +50,30 @@ export function AddProductForm() {
       pushToast(message, "error");
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handleImageUpload = async () => {
+    if (!selectedFile) {
+      return;
+    }
+
+    setUploadMessage("");
+    setErrorMessage("");
+    setIsUploadingImage(true);
+
+    try {
+      const imageUrl = await api.uploadProductImage(selectedFile);
+      updateField("image", imageUrl);
+      setUploadMessage("Image uploaded successfully.");
+      pushToast("Image uploaded successfully.", "success");
+    } catch (error) {
+      const message = getErrorMessage(error, "Could not upload image. Please try again.");
+      setUploadMessage(message);
+      setErrorMessage(message);
+      pushToast(message, "error");
+    } finally {
+      setIsUploadingImage(false);
     }
   };
 
@@ -110,17 +138,52 @@ export function AddProductForm() {
         />
       </label>
 
-      <label className="space-y-1 sm:col-span-2">
-        <span className="text-sm font-medium text-slate-700">Image URL</span>
-        <input
-          required
-          type="url"
-          value={form.image}
-          onChange={(event) => updateField("image", event.target.value)}
-          placeholder="https://images.unsplash.com/..."
-          className="form-input"
-        />
-      </label>
+      <div className="space-y-3 sm:col-span-2">
+        <label className="space-y-1">
+          <span className="text-sm font-medium text-slate-700">Product Image File</span>
+          <input
+            type="file"
+            accept="image/png,image/jpeg,image/webp"
+            className="form-input file:mr-3 file:rounded-lg file:border-0 file:bg-slate-100 file:px-3 file:py-2 file:text-sm file:font-semibold"
+            onChange={(event) => setSelectedFile(event.target.files?.[0] ?? null)}
+          />
+        </label>
+
+        <div className="flex flex-wrap items-center gap-2">
+          <Button type="button" onClick={handleImageUpload} loading={isUploadingImage} disabled={!selectedFile}>
+            {isUploadingImage ? "Uploading..." : "Upload Image"}
+          </Button>
+          <span className="text-xs text-slate-500">Allowed: JPG, PNG, WEBP (max 5MB)</span>
+        </div>
+
+        {uploadMessage ? <p className="text-sm font-medium text-slate-700">{uploadMessage}</p> : null}
+
+        <label className="space-y-1">
+          <span className="text-sm font-medium text-slate-700">Image URL (auto-filled after upload)</span>
+          <input
+            required
+            type="url"
+            value={form.image}
+            onChange={(event) => updateField("image", event.target.value)}
+            placeholder="https://your-cdn-or-backend/uploads/products/..."
+            className="form-input"
+          />
+        </label>
+
+        {form.image ? (
+          <div className="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-2">
+            <div className="relative h-44 w-full">
+              <Image
+                src={form.image}
+                alt="Selected product preview"
+                fill
+                className="rounded-lg object-cover"
+                sizes="(max-width: 768px) 100vw, 640px"
+              />
+            </div>
+          </div>
+        ) : null}
+      </div>
 
       <label className="space-y-1 sm:col-span-2">
         <span className="text-sm font-medium text-slate-700">Description</span>

@@ -56,10 +56,11 @@ export const fetchJson = async <T>(
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
+    const isFormDataBody = typeof FormData !== "undefined" && init?.body instanceof FormData;
     const response = await fetch(createUrl(path), {
       ...init,
       headers: {
-        "Content-Type": "application/json",
+        ...(isFormDataBody ? {} : { "Content-Type": "application/json" }),
         ...(init?.headers ?? {})
       },
       signal: controller.signal,

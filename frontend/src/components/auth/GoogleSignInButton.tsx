@@ -10,8 +10,9 @@ interface GoogleSignInButtonProps {
 export function GoogleSignInButton({ callbackUrl = "/" }: GoogleSignInButtonProps) {
   return (
     <Button
+      variant="ghost"
       onClick={() => signIn("google", { callbackUrl })}
-      className="w-full bg-white text-slate-800 ring-1 ring-slate-200 hover:bg-slate-50"
+      className="h-10 w-full rounded-full border border-[#d7e3f3] !bg-white !text-slate-700 shadow-none hover:-translate-y-0 hover:!bg-[#f3f7fc]"
     >
       <svg viewBox="0 0 24 24" aria-hidden className="h-4 w-4">
         <path

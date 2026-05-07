@@ -14,12 +14,13 @@ export function ErrorState({
   actionHref = "/"
 }: ErrorStateProps) {
   return (
-    <div className="rounded-3xl border border-rose-200 bg-rose-50/80 p-8 text-center shadow-sm">
-      <h3 className="text-lg font-bold text-rose-900">{title}</h3>
-      <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-rose-700">{description}</p>
+    <div className="relative overflow-hidden rounded-3xl border border-[#f0d4cf] bg-[#fff6f4] p-8 text-center shadow-sm">
+      <div className="absolute -left-8 -top-8 h-24 w-24 rounded-full bg-[#f07a5c]/20 blur-2xl" />
+      <h3 className="relative text-lg font-bold text-[#8f2f1f]">{title}</h3>
+      <p className="relative mx-auto mt-2 max-w-md text-sm leading-6 text-[#ad4c3a]">{description}</p>
       <Link
         href={actionHref}
-        className="mt-5 inline-flex items-center rounded-xl bg-rose-600 px-4 py-2 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-rose-500"
+        className="relative mt-5 inline-flex items-center rounded-xl bg-[#c84d32] px-4 py-2 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#b64228]"
       >
         {actionLabel}
       </Link>

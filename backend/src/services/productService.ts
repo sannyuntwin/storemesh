@@ -1,7 +1,14 @@
 import prisma from "../lib/prisma";
-import { NotFoundError } from "../utils/errors";
+import { ForbiddenError, NotFoundError } from "../utils/errors";
 import { serializeProduct } from "../utils/serializers";
 import { CreateProductInput, UpdateProductInput } from "../utils/validators";
+import { UserRole } from "@prisma/client";
+
+const assertSellerRole = (role: UserRole, userId: number) => {
+  if (role !== UserRole.SELLER) {
+    throw new ForbiddenError(`User ${userId} is not allowed to create or own products (SELLER role required)`);
+  }
+};
 
 export const getProducts = async () => {
   const products = await prisma.product.findMany({
@@ -52,6 +59,8 @@ export const createProduct = async (input: CreateProductInput) => {
     throw new NotFoundError("Seller not found");
   }
 
+  assertSellerRole(seller.role, seller.id);
+
   const product = await prisma.product.create({
     data: input,
     include: {
@@ -85,6 +94,8 @@ export const updateProduct = async (id: number, input: UpdateProductInput) => {
     if (!seller) {
       throw new NotFoundError("Seller not found");
     }
+
+    assertSellerRole(seller.role, seller.id);
   }
 
   const updated = await prisma.product.update({

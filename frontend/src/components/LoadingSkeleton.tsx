@@ -16,7 +16,7 @@ export function LoadingSkeleton({ className, rounded = "lg", ...props }: Loading
   return (
     <div
       className={[
-        "animate-pulse bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 bg-[length:200%_100%]",
+        "animate-pulse bg-gradient-to-r from-[#dfe9f7] via-[#f3f8ff] to-[#dfe9f7] bg-[length:200%_100%]",
         roundedClasses[rounded],
         className
       ]

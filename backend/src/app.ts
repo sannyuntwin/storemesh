@@ -1,5 +1,6 @@
 import cors from "cors";
 import express from "express";
+import path from "node:path";
 import apiRoutes from "./routes";
 import { CORS_ORIGIN } from "./config/env";
 import { errorHandler, notFoundHandler } from "./middleware/errorHandler";
@@ -25,6 +26,7 @@ app.use(
   })
 );
 app.use(express.json());
+app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 app.get("/", (_req, res) => {
   res.status(200).json({

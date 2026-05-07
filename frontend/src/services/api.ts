@@ -9,7 +9,12 @@ import {
   ProductInput,
   SellerStat
 } from "@/types";
-import { fetchJson, shouldAllowMockFallback, shouldUseRemoteApi } from "@/services/fetcher";
+import {
+  ApiRequestError,
+  fetchJson,
+  shouldAllowMockFallback,
+  shouldUseRemoteApi
+} from "@/services/fetcher";
 
 const API_LATENCY_MS = 500;
 
@@ -55,9 +60,13 @@ type BackendOrder = {
 export const endpoints = {
   products: "/products",
   productById: (id: string) => `/products/${id}`,
+  productStock: (id: string) => `/products/${id}/stock`,
   orders: "/orders",
+  orderShippingLabel: (id: string) => `/orders/${id}/shipping-label`,
+  payments: "/payments",
   cart: "/cart",
-  sellerStats: "/seller/stats"
+  sellerStats: "/seller/stats",
+  uploadProductImage: "/uploads/product-image"
 };
 
 const wait = async (ms: number): Promise<void> => {
@@ -219,7 +228,7 @@ export const api = {
       },
       () =>
         useMockFallback(async () => [
-          { label: "Revenue", value: "$42,350", trend: "+12.4%", trendDirection: "up" },
+          { label: "Revenue", value: "฿42,350", trend: "+12.4%", trendDirection: "up" },
           { label: "Orders", value: "1,084", trend: "+8.7%", trendDirection: "up" },
           { label: "Returns", value: "1.1%", trend: "-0.3%", trendDirection: "down" }
         ])
@@ -254,6 +263,67 @@ export const api = {
           localProducts = [created, ...localProducts];
           return created;
         })
+    );
+
+    return result.data;
+  },
+
+  async addStock(productId: string, quantityAdded: number): Promise<Product> {
+    const result = await resolveWithFallback(
+      async () => {
+        const response = await fetchJson<ApiEnvelope<BackendProduct>>(endpoints.productStock(productId), {
+          method: "POST",
+          body: JSON.stringify({
+            quantityAdded
+          })
+        });
+
+        return toProduct(response.data);
+      },
+      () =>
+        useMockFallback(async () => {
+          const target = localProducts.find((item) => item.id === productId);
+          if (!target) {
+            throw new ApiRequestError("Product not found");
+          }
+
+          const updated: Product = {
+            ...target,
+            quantity: target.quantity + quantityAdded
+          };
+
+          localProducts = localProducts.map((item) => (item.id === productId ? updated : item));
+          return updated;
+        })
+    );
+
+    return result.data;
+  },
+
+  async uploadProductImage(file: File): Promise<string> {
+    const result = await resolveWithFallback(
+      async () => {
+        if (!shouldUseRemoteApi()) {
+          throw new ApiRequestError("Missing NEXT_PUBLIC_API_URL");
+        }
+
+        const formData = new FormData();
+        formData.append("image", file);
+
+        const response = await fetchJson<
+          ApiEnvelope<{
+            imageUrl: string;
+          }>
+        >(endpoints.uploadProductImage, {
+          method: "POST",
+          body: formData
+        });
+
+        return response.data.imageUrl;
+      },
+      async () => {
+        throw new ApiRequestError("Image upload requires backend API access");
+      }
     );
 
     return result.data;
@@ -303,6 +373,92 @@ export const api = {
             })
           };
         })
+    );
+
+    return result.data;
+  },
+
+  async createPayment(input: { saleOrderId: string; amount: number; paymentMethod: string; paymentDate?: string }) {
+    const result = await resolveWithFallback(
+      async () => {
+        const payload = {
+          saleOrderId: Number(input.saleOrderId),
+          amount: input.amount,
+          paymentMethod: input.paymentMethod,
+          paymentDate: input.paymentDate
+        };
+
+        const response = await fetchJson<
+          ApiEnvelope<{
+            id: number;
+            saleOrderId: number;
+            amount: number;
+            paymentMethod: string;
+            paymentDate: string;
+          }>
+        >(endpoints.payments, {
+          method: "POST",
+          body: JSON.stringify(payload)
+        });
+
+        return {
+          id: String(response.data.id),
+          saleOrderId: String(response.data.saleOrderId),
+          amount: Number(response.data.amount),
+          paymentMethod: response.data.paymentMethod,
+          paymentDate: response.data.paymentDate
+        };
+      },
+      () =>
+        useMockFallback(async () => ({
+          id: String(Date.now()),
+          saleOrderId: input.saleOrderId,
+          amount: input.amount,
+          paymentMethod: input.paymentMethod,
+          paymentDate: new Date().toISOString()
+        }))
+    );
+
+    return result.data;
+  },
+
+  async createShippingLabel(input: { orderId: string; recipientAddress: string; trackingNo?: string }) {
+    const result = await resolveWithFallback(
+      async () => {
+        const payload = {
+          recipientAddress: input.recipientAddress,
+          trackingNo: input.trackingNo?.trim() ? input.trackingNo.trim() : undefined
+        };
+
+        const response = await fetchJson<
+          ApiEnvelope<{
+            id: number;
+            saleOrderId: number;
+            trackingNo: string;
+            recipientAddress: string;
+            printedAt: string;
+          }>
+        >(endpoints.orderShippingLabel(input.orderId), {
+          method: "POST",
+          body: JSON.stringify(payload)
+        });
+
+        return {
+          id: String(response.data.id),
+          saleOrderId: String(response.data.saleOrderId),
+          trackingNo: response.data.trackingNo,
+          recipientAddress: response.data.recipientAddress,
+          printedAt: response.data.printedAt
+        };
+      },
+      () =>
+        useMockFallback(async () => ({
+          id: String(Date.now()),
+          saleOrderId: input.orderId,
+          trackingNo: input.trackingNo?.trim() || `TRK-${Date.now()}`,
+          recipientAddress: input.recipientAddress,
+          printedAt: new Date().toISOString()
+        }))
     );
 
     return result.data;

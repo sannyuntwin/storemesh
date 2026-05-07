@@ -5,6 +5,7 @@ import orderRoutes from "./orderRoutes";
 import paymentRoutes from "./paymentRoutes";
 import productRoutes from "./productRoutes";
 import sellerRoutes from "./sellerRoutes";
+import uploadRoutes from "./uploadRoutes";
 
 const apiRoutes = Router();
 
@@ -23,5 +24,6 @@ apiRoutes.use("/payments", paymentRoutes);
 apiRoutes.use("/cart", cartRoutes);
 apiRoutes.use("/seller", sellerRoutes);
 apiRoutes.use("/auth", authRoutes);
+apiRoutes.use("/uploads", uploadRoutes);
 
 export default apiRoutes;

@@ -39,9 +39,9 @@ export function CredentialsSignInForm({ callbackUrl = "/seller/dashboard" }: Cre
   };
 
   return (
-    <form className="space-y-3" onSubmit={handleSubmit}>
+    <form className="space-y-4" onSubmit={handleSubmit}>
       <div className="space-y-1">
-        <label htmlFor="email" className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-600">
+        <label htmlFor="email" className="text-sm font-medium text-slate-700">
           Email
         </label>
         <input
@@ -50,35 +50,44 @@ export function CredentialsSignInForm({ callbackUrl = "/seller/dashboard" }: Cre
           type="email"
           required
           autoComplete="email"
-          className="form-input"
+          className="w-full rounded-md border border-[#d7e3f3] bg-[#eef4fb] px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-[#0b4f9f] focus:bg-white focus:ring-2 focus:ring-[#0b4f9f]/15"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
-          placeholder="you@company.com"
+          placeholder="test@gmail.com"
         />
       </div>
 
       <div className="space-y-1">
-        <label htmlFor="password" className="text-xs font-semibold uppercase tracking-[0.08em] text-slate-600">
-          Password
-        </label>
+        <div className="flex items-center justify-between">
+          <label htmlFor="password" className="text-sm font-medium text-slate-700">
+            Password
+          </label>
+          <span className="text-xs text-slate-400">Forgot password?</span>
+        </div>
         <input
           id="password"
           name="password"
           type="password"
           required
           autoComplete="current-password"
-          className="form-input"
+          className="w-full rounded-md border border-[#d7e3f3] bg-[#eef4fb] px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-[#0b4f9f] focus:bg-white focus:ring-2 focus:ring-[#0b4f9f]/15"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
-          placeholder="Enter password"
+          placeholder="************"
         />
       </div>
 
       {errorMessage ? <p className="text-xs font-medium text-rose-600">{errorMessage}</p> : null}
 
-      <Button type="submit" className="w-full" loading={isSubmitting}>
-        {isSubmitting ? "Signing in..." : "Sign in with email"}
-      </Button>
+      <div className="pt-3 text-center">
+        <Button
+          type="submit"
+          className="h-10 min-w-[148px] rounded-full bg-[#0b4f9f] px-6 text-xs tracking-[0.08em] text-white hover:bg-[#0e62c4]"
+          loading={isSubmitting}
+        >
+          {isSubmitting ? "SIGNING IN..." : "SIGN IN  →"}
+        </Button>
+      </div>
     </form>
   );
 }

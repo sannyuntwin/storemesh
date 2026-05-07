@@ -242,6 +242,10 @@ export const validateGoogleRegister = (body: unknown): GoogleRegisterInput => {
       ? body.providerAccountId.trim()
       : undefined;
 
+  if (!googleId && !providerAccountId) {
+    throw new BadRequestError("Either googleId or providerAccountId is required");
+  }
+
   const address =
     typeof body.address === "string" && body.address.trim().length > 0 ? body.address.trim() : undefined;
 

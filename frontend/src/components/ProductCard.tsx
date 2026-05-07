@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { AddToCartButton } from "@/components/AddToCartButton";
 import { Product } from "@/types";
+import { formatThaiBaht } from "@/utils/formatCurrency";
 
 interface ProductCardProps {
   product: Product;
@@ -30,7 +31,7 @@ export function ProductCard({ product }: ProductCardProps) {
 
         <div className="flex items-center justify-between gap-3">
           <div>
-            <p className="text-xl font-black tracking-tight text-slate-900">${product.unitPrice.toFixed(2)}</p>
+            <p className="text-xl font-black tracking-tight text-slate-900">{formatThaiBaht(product.unitPrice)}</p>
             <p className="text-xs text-slate-500">{product.quantity} in stock</p>
           </div>
           <AddToCartButton product={product} />

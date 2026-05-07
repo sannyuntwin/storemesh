@@ -80,7 +80,9 @@ NODE_ENV=development
 - `POST /api/orders`
 - `GET /api/orders/:id`
 - `POST /api/orders/:id/shipping-label`
+- `GET /api/orders/:id/shipping-label/print`
   - shipment step creates shipping label, reduces inventory, writes stock logs, and marks order as `SHIPPED`
+  - print endpoint returns a print-ready HTML shipping label for parcel attachment
 
 ### Payments
 
@@ -92,6 +94,12 @@ NODE_ENV=development
 - `GET /api/seller/stats`
 - `POST /api/auth/google`
 - `POST /api/auth/google/register`
+- `POST /api/uploads/product-image` (multipart form field: `image`)
+
+### Static Uploads
+
+- Uploaded product files are served from:
+  - `GET /uploads/products/<filename>`
 
 ## Response Format
 

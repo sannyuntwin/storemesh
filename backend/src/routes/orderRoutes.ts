@@ -1,11 +1,17 @@
 import { Router } from "express";
 import { asyncHandler } from "../middleware/asyncHandler";
-import { handleCreateOrder, handleCreateShippingLabel, handleGetOrderById } from "../controllers/orderController";
+import {
+  handleCreateOrder,
+  handleCreateShippingLabel,
+  handleGetOrderById,
+  handlePrintShippingLabel
+} from "../controllers/orderController";
 
 const orderRoutes = Router();
 
 orderRoutes.post("/", asyncHandler(handleCreateOrder));
 orderRoutes.get("/:id", asyncHandler(handleGetOrderById));
 orderRoutes.post("/:id/shipping-label", asyncHandler(handleCreateShippingLabel));
+orderRoutes.get("/:id/shipping-label/print", asyncHandler(handlePrintShippingLabel));
 
 export default orderRoutes;

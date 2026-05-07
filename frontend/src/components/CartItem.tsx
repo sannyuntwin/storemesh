@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Button } from "@/components/Button";
 import { CartLine } from "@/types";
+import { formatThaiBaht } from "@/utils/formatCurrency";
 
 interface CartItemProps {
   item: CartLine;
@@ -25,7 +26,7 @@ export function CartItem({ item, onIncrease, onDecrease, onRemove }: CartItemPro
         <Link href={`/products/${item.product.id}`} className="line-clamp-1 text-base font-bold text-slate-900">
           {item.product.title}
         </Link>
-        <p className="mt-1 text-sm text-slate-500">${safeUnitPrice.toFixed(2)} each</p>
+        <p className="mt-1 text-sm text-slate-500">{formatThaiBaht(safeUnitPrice)} each</p>
 
         <div className="mt-3 flex items-center gap-2">
           <Button variant="secondary" size="sm" onClick={onDecrease}>
@@ -41,7 +42,7 @@ export function CartItem({ item, onIncrease, onDecrease, onRemove }: CartItemPro
       </div>
 
       <div className="flex items-center justify-between gap-2 sm:flex-col sm:items-end">
-        <p className="text-base font-black text-slate-900">${lineTotal.toFixed(2)}</p>
+        <p className="text-base font-black text-slate-900">{formatThaiBaht(lineTotal)}</p>
         <Button variant="ghost" size="sm" onClick={onRemove}>
           Remove
         </Button>

@@ -1,7 +1,12 @@
 import { Request, Response } from "express";
 import { sendSuccess } from "../utils/apiResponse";
 import { parseIdParam, validateCreateOrder, validateCreateShippingLabel } from "../utils/validators";
-import { createOrder, createShippingLabelForOrder, getOrderById } from "../services/orderService";
+import {
+  createOrder,
+  createShippingLabelForOrder,
+  getOrderById,
+  getShippingLabelPrintDocument
+} from "../services/orderService";
 
 export const handleCreateOrder = async (req: Request, res: Response) => {
   const payload = validateCreateOrder(req.body);
@@ -20,4 +25,10 @@ export const handleCreateShippingLabel = async (req: Request, res: Response) => 
   const payload = validateCreateShippingLabel(req.body);
   const shippingLabel = await createShippingLabelForOrder(id, payload);
   return sendSuccess(res, shippingLabel, 201);
+};
+
+export const handlePrintShippingLabel = async (req: Request, res: Response) => {
+  const id = parseIdParam(req.params.id, "order id");
+  const html = await getShippingLabelPrintDocument(id);
+  return res.status(200).type("html").send(html);
 };

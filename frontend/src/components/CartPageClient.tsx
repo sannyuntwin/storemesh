@@ -66,6 +66,17 @@ export function CartPageClient({ initialItems, usedFallback = false }: CartPageC
     <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
       <section className="space-y-4">
         <h1 className="text-2xl font-black text-slate-900 md:text-3xl">Your Cart</h1>
+        <div className="flex flex-wrap gap-2 text-xs">
+          <span className="rounded-full border border-[#d9e4f3] bg-[#f3f8ff] px-3 py-1 font-semibold text-[#0a3f82]">
+            Secure checkout
+          </span>
+          <span className="rounded-full border border-[#d9e4f3] bg-[#f3f8ff] px-3 py-1 font-semibold text-[#0a3f82]">
+            Fast dispatch
+          </span>
+          <span className="rounded-full border border-[#d9e4f3] bg-[#f3f8ff] px-3 py-1 font-semibold text-[#0a3f82]">
+            Live stock validation
+          </span>
+        </div>
         {usedFallback ? (
           <section className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
             Cart data is currently running in fallback mode.
@@ -101,6 +112,7 @@ export function CartPageClient({ initialItems, usedFallback = false }: CartPageC
         <Button className="w-full" onClick={handlePlaceOrder} loading={isSubmittingOrder} disabled={items.length === 0}>
           {isSubmittingOrder ? "Placing order..." : "Place order"}
         </Button>
+        <p className="text-center text-xs text-slate-500">By placing an order, you agree to our shipping and return policy.</p>
       </div>
     </div>
   );

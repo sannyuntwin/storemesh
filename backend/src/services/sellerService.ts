@@ -1,7 +1,7 @@
 import prisma from "../lib/prisma";
 
 const formatCurrency = (amount: number): string => {
-  return `$${amount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
+  return `฿${amount.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`;
 };
 
 export const getSellerStats = async () => {

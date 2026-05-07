@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import Image from "next/image";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { CredentialsSignInForm } from "@/components/auth/CredentialsSignInForm";
 import { GoogleSignInButton } from "@/components/auth/GoogleSignInButton";
+import { formatThaiBahtNoDecimal } from "@/utils/formatCurrency";
 
 interface LoginPageProps {
   searchParams: Promise<{
@@ -24,67 +25,114 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
     redirect(resolvedCallbackUrl);
   }
 
-  return (
-    <section className="mx-auto max-w-5xl">
-      <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-        <article className="surface-card relative overflow-hidden p-6 md:p-8">
-          <div className="absolute -right-16 -top-16 h-56 w-56 rounded-full bg-blue-200/35 blur-2xl" />
-          <div className="absolute -bottom-20 -left-16 h-56 w-56 rounded-full bg-blue-100/55 blur-3xl" />
+  const featuredProducts = [
+    {
+      title: "Studio Headphones",
+      price: formatThaiBahtNoDecimal(129),
+      image: "https://images.unsplash.com/photo-1505740420928-5e560c06d30e"
+    },
+    {
+      title: "Urban Sneakers",
+      price: formatThaiBahtNoDecimal(74),
+      image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff"
+    },
+    {
+      title: "Smartwatch Pro",
+      price: formatThaiBahtNoDecimal(149),
+      image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30"
+    }
+  ];
 
-          <div className="relative">
-            <p className="text-xs font-bold uppercase tracking-[0.22em] text-[#0b4f9f]">Storemesh Access</p>
-            <h1 className="mt-3 text-3xl font-black leading-tight text-[#0a3f82] md:text-4xl">
-              Welcome back to your seller workspace
-            </h1>
-            <p className="mt-4 max-w-xl text-sm leading-7 text-slate-600 md:text-base">
-              Sign in with your Google account to manage inventory, publish products, and track store activity from one
-              clean dashboard.
+  return (
+    <section className="relative overflow-hidden rounded-[2rem] border border-[#dbe7f6] bg-[#f8fbff]">
+      <div className="absolute -left-24 -top-24 h-64 w-64 rounded-full bg-[#0b4f9f]/12 blur-3xl" />
+      <div className="absolute -right-28 bottom-0 h-72 w-72 rounded-full bg-[#c9dbf2]/45 blur-3xl" />
+
+      <div className="relative grid lg:grid-cols-[1fr_1.03fr]">
+        <article className="flex items-center justify-center px-5 py-10 md:px-10 lg:px-14 lg:py-14">
+          <div className="w-full max-w-[470px] rounded-3xl border border-[#dbe7f6] bg-white px-7 py-8 shadow-[0_28px_70px_-52px_rgba(15,23,42,0.55)] md:px-10 md:py-10">
+            <p className="text-[11px] font-bold uppercase tracking-[0.24em] text-[#0b4f9f]">Storemesh Marketplace</p>
+            <h1 className="mt-4 text-[2.7rem] font-black leading-[1.02] tracking-tight text-slate-900">Welcome back</h1>
+            <p className="mt-3 max-w-md text-sm leading-7 text-slate-500">
+              Sign in to manage products, update stock, process shipments, and track orders in real time.
             </p>
 
-            <div className="mt-6 grid gap-3 sm:grid-cols-2">
-              <div className="surface-panel p-4">
-                <p className="text-sm font-semibold text-[#0a3f82]">Fast Access</p>
-                <p className="mt-1 text-xs leading-6 text-slate-600">One-click login with Google, no extra password flow.</p>
-              </div>
-              <div className="surface-panel p-4">
-                <p className="text-sm font-semibold text-[#0a3f82]">Protected Tools</p>
-                <p className="mt-1 text-xs leading-6 text-slate-600">Seller pages stay restricted to authenticated users.</p>
-              </div>
+            <div className="mt-8">
+              <CredentialsSignInForm callbackUrl={resolvedCallbackUrl} />
             </div>
+
+            <div className="my-6 flex items-center gap-3">
+              <div className="h-px flex-1 bg-[#d9e4f3]" />
+              <span className="text-[10px] font-bold uppercase tracking-[0.16em] text-slate-400">or</span>
+              <div className="h-px flex-1 bg-[#d9e4f3]" />
+            </div>
+
+            <GoogleSignInButton callbackUrl={resolvedCallbackUrl} />
+
+            <p className="mt-7 rounded-xl border border-[#dbe7f6] bg-[#f2f7fd] px-3 py-2 text-xs text-slate-500">
+              Demo credentials:
+              <span className="ml-2 font-semibold text-slate-700">seller@storemesh.local / storemesh123</span>
+            </p>
           </div>
         </article>
 
-        <article className="surface-card p-6 md:p-8">
-          <p className="text-xs font-bold uppercase tracking-[0.2em] text-slate-500">Secure Login</p>
-          <h2 className="mt-2 text-2xl font-black text-[#0a3f82]">Sign in to continue</h2>
-          <p className="mt-2 text-sm leading-6 text-slate-600">Use email/password or continue with Google for your dashboard session.</p>
+        <article className="relative hidden overflow-hidden border-l border-[#dbe7f6] bg-[#eef4fb] lg:block">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_15%_20%,rgba(11,79,159,0.2),transparent_45%),radial-gradient(circle_at_80%_90%,rgba(28,35,55,0.12),transparent_40%)]" />
 
-          <div className="mt-6">
-            <CredentialsSignInForm callbackUrl={resolvedCallbackUrl} />
-          </div>
+          <div className="absolute inset-0 px-10 py-12">
+            <div className="space-y-6">
+              <div className="rounded-2xl border border-[#dbe7f6] bg-white/85 p-5 backdrop-blur">
+                <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#0b4f9f]">Storefront</p>
+                <p className="mt-2 text-sm font-semibold text-slate-800">Live campaign performance</p>
+                <p className="mt-1 text-3xl font-black text-slate-900">{formatThaiBahtNoDecimal(42350)}</p>
+                <p className="mt-2 text-xs font-medium text-emerald-700">+12.4% this week</p>
+              </div>
 
-          <div className="my-5 flex items-center gap-3">
-            <div className="h-px flex-1 bg-blue-100" />
-            <span className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">or</span>
-            <div className="h-px flex-1 bg-blue-100" />
-          </div>
+              <div className="rounded-2xl border border-[#dbe7f6] bg-white/80 p-5 backdrop-blur">
+                <div className="mb-3 flex items-center justify-between">
+                  <p className="text-sm font-semibold text-slate-800">Trending products</p>
+                  <span className="rounded-full bg-[#e7eef8] px-2 py-1 text-[10px] font-bold uppercase tracking-[0.08em] text-[#0a3f82]">
+                    Updated
+                  </span>
+                </div>
+                <div className="grid grid-cols-3 gap-3">
+                  {featuredProducts.map((item) => (
+                    <article key={item.title} className="overflow-hidden rounded-xl border border-[#d9e6f6] bg-white">
+                      <div className="relative h-24 w-full">
+                        <Image
+                          src={item.image}
+                          alt={item.title}
+                          fill
+                          className="object-cover"
+                          sizes="160px"
+                        />
+                      </div>
+                      <div className="p-2">
+                        <p className="line-clamp-1 text-[11px] font-semibold text-slate-800">{item.title}</p>
+                        <p className="mt-0.5 text-[11px] font-bold text-[#0b4f9f]">{item.price}</p>
+                      </div>
+                    </article>
+                  ))}
+                </div>
+              </div>
 
-          <div>
-            <GoogleSignInButton callbackUrl={resolvedCallbackUrl} />
-          </div>
-
-          <p className="mt-4 text-xs leading-6 text-slate-500">
-            By continuing, you agree to use this portal for assessment and demo purposes. Demo credentials:
-            <code className="mx-1 rounded bg-slate-100 px-1 py-0.5 font-semibold text-slate-700">seller@storemesh.local</code>
-            /
-            <code className="mx-1 rounded bg-slate-100 px-1 py-0.5 font-semibold text-slate-700">storemesh123</code>
-            .
-          </p>
-
-          <div className="mt-5">
-            <Link href="/" className="text-sm font-semibold text-[#0b4f9f] underline-offset-4 hover:underline">
-              Back to shop
-            </Link>
+              <div className="rounded-2xl border border-[#dbe7f6] bg-white/78 p-5 backdrop-blur">
+                <p className="text-sm font-semibold text-slate-800">Commerce trust signals</p>
+                <div className="mt-3 grid grid-cols-2 gap-3">
+                  <div className="rounded-xl border border-[#dbe7f6] bg-[#f2f7fd] p-3">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#0b4f9f]">Shipping</p>
+                    <p className="mt-1 text-xs text-slate-600">Same-day dispatch support</p>
+                  </div>
+                  <div className="rounded-xl border border-[#dbe7f6] bg-[#f2f7fd] p-3">
+                    <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-[#0b4f9f]">Payments</p>
+                    <p className="mt-1 text-xs text-slate-600">Secure order settlements</p>
+                  </div>
+                </div>
+                <p className="mt-4 text-xs leading-6 text-slate-500">
+                  Build confidence with faster fulfillment, reliable stock visibility, and clear payment records.
+                </p>
+              </div>
+            </div>
           </div>
         </article>
       </div>

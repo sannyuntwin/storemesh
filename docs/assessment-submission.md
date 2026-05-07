@@ -82,6 +82,9 @@ Primary endpoints:
 }
 ```
 
+### `GET /api/orders/:id/shipping-label/print`
+Returns a print-ready HTML shipping label page that sellers can print and attach to parcel boxes.
+
 ## Google Registration Flow
 1. User signs in with Google in frontend (Auth.js).
 2. Frontend obtains authenticated Google session/profile.
@@ -93,7 +96,8 @@ Primary endpoints:
 ## Shipping and Inventory Workflow
 1. Buyer creates order (`POST /api/orders`) with stock validation only.
 2. Seller creates shipping label (`POST /api/orders/:id/shipping-label`).
-3. During shipping transaction:
+3. Seller opens print view (`GET /api/orders/:id/shipping-label/print`) and prints the label.
+4. During shipping transaction:
    - shipping label is created
    - inventory quantities are reduced
    - stock logs are written

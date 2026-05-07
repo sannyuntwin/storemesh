@@ -75,6 +75,17 @@ Content-Type: application/json
   "quantity": 100
 }
 
+### Upload product image (multipart)
+POST {{baseUrl}}/uploads/product-image
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundaryDemo
+
+------WebKitFormBoundaryDemo
+Content-Disposition: form-data; name="image"; filename="sample.jpg"
+Content-Type: image/jpeg
+
+< ./sample.jpg
+------WebKitFormBoundaryDemo--
+
 ### Delete product
 DELETE {{baseUrl}}/products/3
 
@@ -101,6 +112,9 @@ Content-Type: application/json
   "recipientAddress": "12 Lake Rd, Springfield",
   "trackingNo": "TRK-20260507-1001"
 }
+
+### Open print-ready shipping label page
+GET {{baseUrl}}/orders/1/shipping-label/print
 
 ### Create payment
 POST {{baseUrl}}/payments
