@@ -30,6 +30,18 @@ const nextConfig: NextConfig = {
         hostname: "127.0.0.1",
         port: "5000",
       },
+      {
+        protocol: "https",
+        hostname: "example.com",
+      },
+      {
+        protocol: "https",
+        hostname: "res.cloudinary.com",
+      },
+      {
+        protocol: "https",
+        hostname: "djjxtvqx2.cloudinary.com",
+      },
     ],
   },
 };

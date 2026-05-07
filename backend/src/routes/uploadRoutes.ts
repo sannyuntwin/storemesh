@@ -7,17 +7,12 @@ import {
 
 const uploadRoutes = Router();
 
-uploadRoutes.post("/product-image", (req, res, next) => {
-  uploadProductImageMiddleware(req, res, (error) => {
-    try {
-      if (error) {
-        handleUploadError(error);
-      }
-      handleUploadProductImage(req, res);
-    } catch (caught) {
-      next(caught);
-    }
-  });
+uploadRoutes.post("/product-image", uploadProductImageMiddleware, (req, res, next) => {
+  try {
+    handleUploadProductImage(req, res).catch(next);
+  } catch (error) {
+    next(error);
+  }
 });
 
 export default uploadRoutes;

@@ -1,32 +1,14 @@
-import fs from "node:fs";
-import path from "node:path";
 import { Request, Response } from "express";
 import multer from "multer";
 import { sendSuccess } from "../utils/apiResponse";
-import { BadRequestError } from "../utils/errors";
-
-const UPLOAD_DIR = path.join(process.cwd(), "uploads", "products");
-fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+import { AppError, BadRequestError } from "../utils/errors";
+import { v2 as cloudinary } from "cloudinary";
 
 const allowedMimeTypes = new Set(["image/jpeg", "image/png", "image/webp"]);
 const MAX_FILE_SIZE_BYTES = 5 * 1024 * 1024;
 
-const storage = multer.diskStorage({
-  destination: (_req, _file, cb) => {
-    cb(null, UPLOAD_DIR);
-  },
-  filename: (_req, file, cb) => {
-    const safeName = file.originalname
-      .replace(/\.[^/.]+$/, "")
-      .replace(/[^a-zA-Z0-9_-]/g, "-")
-      .slice(0, 60);
-    const ext = path.extname(file.originalname).toLowerCase() || ".jpg";
-    cb(null, `${Date.now()}-${safeName}${ext}`);
-  }
-});
-
 const upload = multer({
-  storage,
+  storage: multer.memoryStorage(),
   limits: {
     fileSize: MAX_FILE_SIZE_BYTES
   },
@@ -41,19 +23,78 @@ const upload = multer({
 
 export const uploadProductImageMiddleware = upload.single("image");
 
-export const handleUploadProductImage = (req: Request, res: Response) => {
+const resolveCloudinaryConfig = () => {
+  const cloudName = process.env.CLOUDINARY_CLOUD_NAME?.trim();
+  const apiKey = process.env.CLOUDINARY_API_KEY?.trim();
+  const apiSecret = process.env.CLOUDINARY_API_SECRET?.trim();
+
+  if (!cloudName || !apiKey || !apiSecret) {
+    throw new AppError("Cloudinary is not configured on the server", 500);
+  }
+
+  return { cloudName, apiKey, apiSecret };
+};
+
+const uploadToCloudinary = async (file: Express.Multer.File) => {
+  const config = resolveCloudinaryConfig();
+  cloudinary.config({
+    cloud_name: config.cloudName,
+    api_key: config.apiKey,
+    api_secret: config.apiSecret,
+    secure: true
+  });
+
+  return new Promise<{
+    secure_url: string;
+    public_id: string;
+    bytes: number;
+    width?: number;
+    height?: number;
+    format?: string;
+  }>((resolve, reject) => {
+    const stream = cloudinary.uploader.upload_stream(
+      {
+        folder: "storemesh/products",
+        resource_type: "image",
+        overwrite: false
+      },
+      (error, result) => {
+        if (error || !result?.secure_url) {
+          reject(new AppError("Failed to upload image to Cloudinary", 500, error));
+          return;
+        }
+        resolve({
+          secure_url: result.secure_url,
+          public_id: result.public_id,
+          bytes: result.bytes,
+          width: result.width,
+          height: result.height,
+          format: result.format
+        });
+      }
+    );
+
+    stream.end(file.buffer);
+  });
+};
+
+export const handleUploadProductImage = async (req: Request, res: Response) => {
   if (!req.file) {
     throw new BadRequestError("image file is required");
   }
 
-  const imageUrl = `${req.protocol}://${req.get("host")}/uploads/products/${req.file.filename}`;
+  const uploaded = await uploadToCloudinary(req.file);
+
   return sendSuccess(
     res,
     {
-      imageUrl,
-      filename: req.file.filename,
+      imageUrl: uploaded.secure_url,
+      publicId: uploaded.public_id,
+      format: uploaded.format,
+      width: uploaded.width,
+      height: uploaded.height,
       mimeType: req.file.mimetype,
-      size: req.file.size
+      size: uploaded.bytes
     },
     201
   );

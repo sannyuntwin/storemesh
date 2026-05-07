@@ -1,8 +1,7 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { Button } from "@/components/Button";
 import { useToast } from "@/components/ToastProvider";
 import { mockSession } from "@/config/session";
@@ -26,6 +25,7 @@ export function AddProductForm() {
   const [isSaving, setIsSaving] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [localPreviewUrl, setLocalPreviewUrl] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [uploadMessage, setUploadMessage] = useState("");
@@ -34,6 +34,14 @@ export function AddProductForm() {
     event.preventDefault();
     setSuccessMessage("");
     setErrorMessage("");
+
+    if (!form.image) {
+      const message = "Please upload a product image.";
+      setErrorMessage(message);
+      pushToast(message, "error");
+      return;
+    }
+
     setIsSaving(true);
 
     try {
@@ -42,7 +50,7 @@ export function AddProductForm() {
       pushToast("Product created successfully.", "success");
       setForm(initialForm);
       setTimeout(() => {
-        router.push("/seller/dashboard");
+        router.push("/seller/products");
       }, 800);
     } catch (error) {
       const message = getErrorMessage(error, "Could not save product. Please try again.");
@@ -84,23 +92,26 @@ export function AddProductForm() {
     }));
   };
 
+  useEffect(() => {
+    if (!selectedFile) {
+      setLocalPreviewUrl("");
+      return;
+    }
+
+    const objectUrl = URL.createObjectURL(selectedFile);
+    setLocalPreviewUrl(objectUrl);
+
+    return () => {
+      URL.revokeObjectURL(objectUrl);
+    };
+  }, [selectedFile]);
+
+  const previewSource = useMemo(() => form.image || localPreviewUrl, [form.image, localPreviewUrl]);
+
   return (
     <form className="mt-6 grid gap-4 sm:grid-cols-2" onSubmit={handleSubmit}>
       <label className="space-y-1">
-        <span className="text-sm font-medium text-slate-700">Seller ID</span>
-        <input
-          required
-          min={1}
-          type="number"
-          value={form.sellerId}
-          onChange={(event) => updateField("sellerId", event.target.value)}
-          placeholder="1"
-          className="form-input"
-        />
-      </label>
-
-      <label className="space-y-1">
-        <span className="text-sm font-medium text-slate-700">Product Name</span>
+        <span className="text-sm font-medium text-slate-700">Product Title</span>
         <input
           required
           type="text"
@@ -126,7 +137,7 @@ export function AddProductForm() {
       </label>
 
       <label className="space-y-1">
-        <span className="text-sm font-medium text-slate-700">Quantity</span>
+        <span className="text-sm font-medium text-slate-700">Inventory Quantity</span>
         <input
           required
           min={0}
@@ -140,7 +151,7 @@ export function AddProductForm() {
 
       <div className="space-y-3 sm:col-span-2">
         <label className="space-y-1">
-          <span className="text-sm font-medium text-slate-700">Product Image File</span>
+          <span className="text-sm font-medium text-slate-700">Image</span>
           <input
             type="file"
             accept="image/png,image/jpeg,image/webp"
@@ -153,40 +164,22 @@ export function AddProductForm() {
           <Button type="button" onClick={handleImageUpload} loading={isUploadingImage} disabled={!selectedFile}>
             {isUploadingImage ? "Uploading..." : "Upload Image"}
           </Button>
-          <span className="text-xs text-slate-500">Allowed: JPG, PNG, WEBP (max 5MB)</span>
+          <span className="text-xs text-slate-500">JPG, PNG, WEBP (max 5MB)</span>
         </div>
 
         {uploadMessage ? <p className="text-sm font-medium text-slate-700">{uploadMessage}</p> : null}
 
-        <label className="space-y-1">
-          <span className="text-sm font-medium text-slate-700">Image URL (auto-filled after upload)</span>
-          <input
-            required
-            type="url"
-            value={form.image}
-            onChange={(event) => updateField("image", event.target.value)}
-            placeholder="https://your-cdn-or-backend/uploads/products/..."
-            className="form-input"
-          />
-        </label>
-
-        {form.image ? (
+        {previewSource ? (
           <div className="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-2">
             <div className="relative h-44 w-full">
-              <Image
-                src={form.image}
-                alt="Selected product preview"
-                fill
-                className="rounded-lg object-cover"
-                sizes="(max-width: 768px) 100vw, 640px"
-              />
+              <img src={previewSource} alt="Selected product preview" className="h-full w-full rounded-lg object-cover" />
             </div>
           </div>
         ) : null}
       </div>
 
       <label className="space-y-1 sm:col-span-2">
-        <span className="text-sm font-medium text-slate-700">Description</span>
+        <span className="text-sm font-medium text-slate-700">Product Description</span>
         <textarea
           required
           value={form.description}
@@ -202,7 +195,7 @@ export function AddProductForm() {
 
       <div className="sm:col-span-2">
         <Button type="submit" loading={isSaving}>
-          {isSaving ? "Saving..." : "Save Product"}
+          {isSaving ? "Saving..." : "Create Product"}
         </Button>
       </div>
     </form>

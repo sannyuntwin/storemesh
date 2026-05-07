@@ -31,6 +31,9 @@ services:
       PORT: 5000
       CORS_ORIGIN: http://localhost:3000
       DATABASE_URL: postgresql://postgres:postgres@db:5432/storemesh?schema=public
+      CLOUDINARY_CLOUD_NAME: djjxtvqx2
+      CLOUDINARY_API_KEY: 835151423441419
+      CLOUDINARY_API_SECRET: emZN-DaTwQR4ej5BBmwKi4ceoIk
     ports:
       - "5000:5000"
 

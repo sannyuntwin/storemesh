@@ -1,4 +1,4 @@
 export const mockSession = {
   buyerId: "2",
-  sellerId: "1"
+  sellerId: "10"
 } as const;
