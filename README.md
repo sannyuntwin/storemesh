@@ -6,12 +6,34 @@ Assessment-ready full-stack e-commerce project with a responsive frontend, REST 
 
 [Open Frontend Live Demo](https://YOUR-VERCEL-URL.vercel.app)
 
+Replace with your actual URLs before submission:
+
+- Frontend (Vercel): `https://<your-frontend>.vercel.app`
+- Backend (Render): `https://<your-backend>.onrender.com`
+
 ## Tech Stack
 
 - Frontend: Next.js 15, TypeScript, Tailwind CSS
 - Backend: Node.js, Express.js, Prisma ORM
 - Database: PostgreSQL
-- Runtime: Docker (database), local Node services
+- Runtime: Docker (database), Vercel (frontend), Render (backend), local Node services
+
+## Deployment Notes (Important)
+
+This repo is a monorepo. Deploy frontend and backend as separate services:
+
+- Frontend service root: `frontend`
+- Backend service root: `backend`
+- Node version: `20.x` for both services
+
+Backend TypeScript build depends on `@types/*` dev dependencies. To prevent Render `tsc` errors in production builds:
+
+- `backend/.npmrc` includes `include=dev`
+- If setting build command manually on Render, use: `npm ci --include=dev && npm run build`
+
+Recommended:
+
+- Use Blueprint deploy from `render.yaml` at repo root for consistent service config.
 
 ## Assessment Requirement Coverage
 
