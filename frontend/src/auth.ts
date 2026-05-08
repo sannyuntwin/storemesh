@@ -1,9 +1,17 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import Google from "next-auth/providers/google";
+import { Role } from "@/utils/authz";
 
 const DEMO_EMAIL = process.env.AUTH_DEMO_EMAIL?.trim().toLowerCase() || "seller@storemesh.local";
 const DEMO_PASSWORD = process.env.AUTH_DEMO_PASSWORD?.trim() || "storemesh123";
+const toRole = (value: unknown): Role | null => {
+  if (value === "BUYER" || value === "SELLER" || value === "ADMIN") {
+    return value;
+  }
+
+  return null;
+};
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
@@ -33,7 +41,8 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           id: "demo-seller",
           name: "Seller Demo",
           email: DEMO_EMAIL,
-          image: null
+          image: null,
+          role: "SELLER" satisfies Role
         };
       }
     })
@@ -45,13 +54,23 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
     signIn: "/login"
   },
   callbacks: {
-    async jwt({ token, account }) {
+    async jwt({ token, account, user }) {
       if (account) {
         token.provider = account.provider;
       }
 
       if (account?.provider === "google") {
         token.googleId = account.providerAccountId;
+        token.role = "BUYER";
+      }
+
+      if (account?.provider === "credentials") {
+        token.role = "SELLER";
+      }
+
+      const userRole = (user as { role?: Role } | undefined)?.role;
+      if (userRole) {
+        token.role = userRole;
       }
 
       return token;
@@ -63,6 +82,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.image = typeof token.picture === "string" ? token.picture : session.user.image;
         session.user.provider = typeof token.provider === "string" ? token.provider : null;
         session.user.googleId = typeof token.googleId === "string" ? token.googleId : null;
+        session.user.role = toRole(token.role);
       }
       return session;
     }

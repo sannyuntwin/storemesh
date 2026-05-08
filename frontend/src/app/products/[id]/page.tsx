@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { ErrorState } from "@/components/ErrorState";
 import { ProductDetail } from "@/components/ProductDetail";
 import { api } from "@/services/api";
+import { ApiRequestError } from "@/services/fetcher";
 
 interface ProductDetailPageProps {
   params: Promise<{ id: string }>;
@@ -19,12 +20,21 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
 
   try {
     result = await api.getProductByIdWithMeta(id);
-  } catch {
+  } catch (error) {
+    if (error instanceof ApiRequestError && error.status === 404) {
+      notFound();
+    }
+
+    const message =
+      error instanceof ApiRequestError
+        ? error.message
+        : "We could not load this product right now. Please try again.";
+
     return (
       <ErrorState
         title="Unable to load product"
-        description="This product detail could not be loaded right now."
-        actionLabel="Back to products"
+        description={message}
+        actionLabel="Back to shop"
         actionHref="/"
       />
     );

@@ -4,6 +4,7 @@ import { parseIdParam, validateCreateOrder, validateCreateShippingLabel } from "
 import {
   createOrder,
   createShippingLabelForOrder,
+  getOrders,
   getOrderById,
   getShippingLabelPrintDocument
 } from "../services/orderService";
@@ -12,6 +13,11 @@ export const handleCreateOrder = async (req: Request, res: Response) => {
   const payload = validateCreateOrder(req.body);
   const order = await createOrder(payload);
   return sendSuccess(res, order, 201);
+};
+
+export const handleGetOrders = async (req: Request, res: Response) => {
+  const orders = await getOrders();
+  return sendSuccess(res, orders);
 };
 
 export const handleGetOrderById = async (req: Request, res: Response) => {

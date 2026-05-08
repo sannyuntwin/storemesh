@@ -1,12 +1,28 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
+import { auth } from "@/auth";
 import { AddProductForm } from "@/components/AddProductForm";
 import { Sidebar } from "@/components/Sidebar";
+import { isDemoModeEnabled } from "@/services/fetcher";
+import { canAccessSellerPortal } from "@/utils/authz";
 
 export const metadata: Metadata = {
   title: "Add Product"
 };
 
-export default function AddProductPage() {
+export default async function AddProductPage() {
+  const [session, demoModeEnabled] = await Promise.all([auth(), isDemoModeEnabled()]);
+
+  if (!demoModeEnabled) {
+    if (!session?.user) {
+      redirect("/login?callbackUrl=/seller/add-product");
+    }
+
+    if (!canAccessSellerPortal(session.user)) {
+      redirect("/");
+    }
+  }
+
   return (
     <div className="grid gap-6 lg:grid-cols-[250px_1fr]">
       <Sidebar />

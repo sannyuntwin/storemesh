@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { FallbackImage } from "@/components/FallbackImage";
 import Link from "next/link";
 import { Product } from "@/types";
 import { AddToCartButton } from "@/components/AddToCartButton";
@@ -17,7 +17,7 @@ export function ProductDetail({ product }: ProductDetailProps) {
 
       <div className="grid gap-7 lg:grid-cols-[1.1fr_1fr]">
       <div className="surface-card relative h-80 overflow-hidden md:h-[34rem]">
-        <Image
+        <FallbackImage
           src={product.image}
           alt={product.title}
           fill

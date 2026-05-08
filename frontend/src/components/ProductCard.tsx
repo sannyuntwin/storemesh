@@ -1,4 +1,4 @@
-import Image from "next/image";
+import { FallbackImage } from "@/components/FallbackImage";
 import Link from "next/link";
 import { AddToCartButton } from "@/components/AddToCartButton";
 import { Product } from "@/types";
@@ -13,7 +13,7 @@ export function ProductCard({ product }: ProductCardProps) {
     <article className="surface-card group overflow-hidden transition duration-300 hover:-translate-y-1 hover:shadow-lg">
       <Link href={`/products/${product.id}`} className="block overflow-hidden">
         <div className="relative h-52 w-full bg-slate-100">
-          <Image
+          <FallbackImage
             src={product.image}
             alt={product.title}
             fill

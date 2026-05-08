@@ -28,7 +28,7 @@ export const getApiBaseUrl = (): string => {
     "";
 
   if (!raw) {
-    return "";
+    throw new ApiRequestError("Missing NEXT_PUBLIC_API_URL");
   }
 
   return ensureApiPath(raw);
@@ -50,7 +50,8 @@ const readCookieValue = (cookieString: string, name: string): string | null => {
 
 export const isDemoModeEnabled = async (): Promise<boolean> => {
   if (typeof window !== "undefined") {
-    return readCookieValue(document.cookie, DEMO_MODE_COOKIE_NAME) === DEMO_MODE_COOKIE_VALUE;
+    const cookieValue = readCookieValue(document.cookie, DEMO_MODE_COOKIE_NAME);
+    return cookieValue === DEMO_MODE_COOKIE_VALUE;
   }
 
   try {
@@ -77,7 +78,7 @@ type CachedResponse = {
   timestamp: number;
 };
 
-const apiCache = new Map<string, CachedResponse>();
+const apiCache = new Map<string, CachedResponse>(); // Clear cache by removing old entries
 
 const getFromCache = <T>(key: string): T | null => {
   const cached = apiCache.get(key);
@@ -98,27 +99,25 @@ export const fetchJson = async <T>(
   timeoutMs: number = DEFAULT_TIMEOUT_MS,
   useCache: boolean = false
 ): Promise<T> => {
-  const cacheKey = `${JSON.stringify(init || {})}-${path}`;
-
-  if (useCache) {
-    const cached = getFromCache<T>(cacheKey);
-    if (cached) {
-      return cached;
-    }
-  }
+  // Disable caching completely to force fresh data
+  const cacheKey = '';
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
     const isFormDataBody = typeof FormData !== "undefined" && init?.body instanceof FormData;
-    const response = await fetch(createUrl(path), {
+    const url = createUrl(path);
+    // Add cache-busting timestamp
+    const cacheBustingUrl = url.includes('?') ? `${url}&_t=${Date.now()}` : `${url}?_t=${Date.now()}`;
+    
+    const response = await fetch(cacheBustingUrl, {
       ...init,
       headers: {
         ...(isFormDataBody ? {} : { "Content-Type": "application/json" }),
         ...(init?.headers ?? {})
       },
       signal: controller.signal,
-      cache: useCache ? "force-cache" : "no-store"
+      cache: "no-store"
     });
 
     if (!response.ok) {

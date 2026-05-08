@@ -12,6 +12,7 @@ import { AuthSessionProvider } from "@/components/AuthSessionProvider";
 import { AuthBuyerSync } from "@/components/auth/AuthBuyerSync";
 import { ThemeProvider } from "@/contexts/ThemeContext";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import { UserProvider } from "@/contexts/UserContext";
 import { DEMO_MODE_COOKIE_NAME, DEMO_MODE_COOKIE_VALUE } from "@/services/fetcher";
 
 const sarabun = Sarabun({
@@ -52,13 +53,15 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               <AuthSessionProvider>
                 <AuthBuyerSync />
                 <ToastProvider>
-                  <CartProvider>
+                  <UserProvider>
+                    <CartProvider>
                     <div className="flex min-h-screen flex-col">
                       <Navbar demoModeEnabled={demoModeEnabled} />
                       <main className="mx-auto w-full max-w-7xl flex-1 px-4 py-7 sm:px-6 md:py-8 lg:px-8">{children}</main>
                       <Footer />
                     </div>
                   </CartProvider>
+                  </UserProvider>
                 </ToastProvider>
               </AuthSessionProvider>
             </ThemeProvider>

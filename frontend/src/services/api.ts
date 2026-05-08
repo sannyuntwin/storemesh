@@ -70,6 +70,7 @@ export const endpoints = {
   uploadProductImage: "/uploads/product-image"
 };
 
+
 const wait = async (ms: number): Promise<void> => {
   if (ms <= 0) {
     return;
@@ -125,7 +126,7 @@ export const calculateCartSummary = (items: CartLine[]): CartSummary => {
   };
 };
 
-let localProducts: Product[] = [...mockProducts];
+let localProducts: Product[] = []; // Clear cache to force backend data
 
 const fallbackCartItems: CartLine[] = [
   { product: mockProducts[0], quantity: 1 },
@@ -180,13 +181,32 @@ const fileToDataUrl = async (file: File): Promise<string> => {
 
 export const api = {
   async getProductsWithMeta(): Promise<ApiResult<Product[]>> {
-    return resolveWithMode(
+    const result = await resolveWithMode(
       async () => {
+        console.log('[API] Fetching products from backend...');
         const response = await fetchJson<ApiEnvelope<BackendProduct[]>>(endpoints.products, undefined, DEFAULT_TIMEOUT_MS, true);
-        return response.data.map(toProduct);
+        const products = response.data.map(toProduct);
+        console.log('[API] Backend products:', products.map(p => ({ id: p.id, title: p.title })));
+        return products;
       },
-      () => useMockData(async () => localProducts)
+      () => {
+        console.log('[API] Using mock data, localProducts:', localProducts.map(p => ({ id: p.id, title: p.title })));
+        return useMockData(async () => localProducts);
+      }
     );
+    console.log('[API] Final result:', { usedFallback: result.usedFallback, data: result.data.map(p => ({ id: p.id, title: p.title })) });
+    return result;
+  },
+
+  getOrders: async (): Promise<any[]> => {
+    const result = await resolveWithMode(
+      async () => {
+        const response = await fetchJson<ApiEnvelope<BackendOrder[]>>(endpoints.orders);
+        return response.data.map(toOrder);
+      },
+      () => useMockData(async () => [])
+    );
+    return result.data;
   },
 
   async getProducts(): Promise<Product[]> {
@@ -344,7 +364,6 @@ export const api = {
       async () => {
         const payload = {
           buyerId: Number(input.buyerId),
-          totalAmount: input.totalAmount,
           items: input.items.map((item) => ({
             productId: Number(item.productId),
             quantity: item.quantity

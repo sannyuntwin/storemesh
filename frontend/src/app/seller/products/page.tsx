@@ -6,6 +6,7 @@ import { SellerProductsStockTable } from "@/components/SellerProductsStockTable"
 import { Sidebar } from "@/components/Sidebar";
 import { api } from "@/services/api";
 import { isDemoModeEnabled } from "@/services/fetcher";
+import { canAccessSellerPortal } from "@/utils/authz";
 import { getTranslations } from 'next-intl/server';
 
 export const metadata: Metadata = {
@@ -19,8 +20,14 @@ export default async function SellerProductsPage() {
     getTranslations('seller.products')
   ]);
 
-  if (!session?.user && !demoModeEnabled) {
-    redirect("/login?callbackUrl=/seller/products");
+  if (!demoModeEnabled) {
+    if (!session?.user) {
+      redirect("/login?callbackUrl=/seller/products");
+    }
+
+    if (!canAccessSellerPortal(session.user)) {
+      redirect("/");
+    }
   }
 
   try {

@@ -80,7 +80,7 @@ export default async function LoginPage({ searchParams }: LoginPageProps) {
               href="/demo?next=/seller/dashboard"
               className="mt-3 inline-flex w-full items-center justify-center rounded-full border border-[#d7e3f3] bg-white px-4 py-2 text-xs font-semibold tracking-[0.08em] text-slate-700 transition hover:bg-[#f3f7fc]"
             >
-              LIVE DEMO
+              Demo Mode
             </a>
           </div>
         </article>

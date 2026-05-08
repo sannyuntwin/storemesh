@@ -5,6 +5,7 @@ import { ErrorState } from "@/components/ErrorState";
 import { RecordPaymentTool } from "@/components/RecordPaymentTool";
 import { Sidebar } from "@/components/Sidebar";
 import { isDemoModeEnabled } from "@/services/fetcher";
+import { canAccessSellerPortal } from "@/utils/authz";
 import { getTranslations } from 'next-intl/server';
 
 export const metadata: Metadata = {
@@ -18,8 +19,14 @@ export default async function SellerPaymentsPage() {
     getTranslations('seller.payments')
   ]);
 
-  if (!session?.user && !demoModeEnabled) {
-    redirect("/login?callbackUrl=/seller/payments");
+  if (!demoModeEnabled) {
+    if (!session?.user) {
+      redirect("/login?callbackUrl=/seller/payments");
+    }
+
+    if (!canAccessSellerPortal(session.user)) {
+      redirect("/");
+    }
   }
 
   try {

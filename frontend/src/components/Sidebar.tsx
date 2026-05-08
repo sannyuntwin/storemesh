@@ -100,7 +100,7 @@ export function Sidebar() {
       title: t("groups.core"),
       items: [
         { label: t("items.dashboard"), icon: DashboardIcon, href: "/seller/dashboard" },
-        { label: t("items.orders"), icon: OrdersIcon, soon: true }
+        { label: t("items.orders"), icon: OrdersIcon, href: "/seller/orders" }
       ]
     },
     {

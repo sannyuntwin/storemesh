@@ -148,12 +148,82 @@
   "seller": {
     "dashboard": {
       "title": "Seller Dashboard",
-      "welcome": "Welcome to Seller Panel",
-      "overview": "Overview",
+      "welcome": "Sales, inventory, and operations overview.",
+      "overview": "This month",
+      "demoModeActive": "Demo mode is active. Showing mock data.",
+      "actionNeeded": "Action Needed",
+      "lowStockItems": "Low Stock Items",
+      "pendingShipment": "Pending Shipment",
+      "paymentUpdates": "Payment Updates",
       "stats": {
         "revenue": "Revenue",
         "orders": "Orders",
-        "returns": "Returns"
+        "returns": "Returns",
+        "lowStock": "Low Stock",
+        "outOfStock": "Out of Stock",
+        "noStockout": "No stockouts",
+        "pendingShipment": "Pending Shipment",
+        "needsFulfillment": "Needs fulfillment"
+      }
+    },
+    "sidebar": {
+      "title": "Seller Workspace",
+      "subtitle": "Marketplace layout",
+      "close": "Close",
+      "menu": "Menu",
+      "groups": {
+        "core": "Core",
+        "catalog": "Catalog",
+        "fulfillment": "Fulfillment",
+        "growth": "Growth"
+      },
+      "items": {
+        "dashboard": "Dashboard",
+        "orders": "Orders",
+        "products": "Products",
+        "shipping": "Shipping",
+        "payments": "Payments",
+        "marketing": "Marketing",
+        "analytics": "Analytics",
+        "messages": "Messages",
+        "settings": "Settings"
+      },
+      "comingSoon": "Coming soon"
+    },
+    "stockTable": {
+      "title": "Inventory Stock Table",
+      "addProduct": "Add Product",
+      "searchPlaceholder": "Search products...",
+      "invalidQuantity": "Please enter a valid positive number",
+      "stockUpdated": "Stock updated for",
+      "updateError": "Failed to update stock",
+      "noProducts": "No products match this filter",
+      "filters": {
+        "all": "All inventory",
+        "low": "Low stock only",
+        "out": "Out of stock only"
+      },
+      "sort": {
+        "quantityDesc": "Sort: Qty high to low",
+        "quantityAsc": "Sort: Qty low to high",
+        "priceDesc": "Sort: Price high to low",
+        "priceAsc": "Sort: Price low to high",
+        "titleAsc": "Sort: Title A-Z"
+      },
+      "status": {
+        "outOfStock": "Out of Stock",
+        "lowStock": "Low Stock",
+        "healthy": "Healthy"
+      },
+      "table": {
+        "product": "Product",
+        "status": "Status",
+        "quantity": "Quantity",
+        "price": "Price",
+        "addStock": "Add Stock",
+        "qtyPlaceholder": "Qty",
+        "add": "Add",
+        "addFive": "+5"
       }
     },
     "products": {
@@ -197,14 +267,51 @@
       "couldNotUpload": "Could not upload image. Please try again.",
       "supportedFormats": "JPG, PNG, WEBP (max 5MB)"
     },
+    "shipping": {
+      "title": "Shipping Management",
+      "description": "Create shipping labels and manage order fulfillment. Inventory is automatically reduced when labels are created.",
+      "createShipment": {
+        "title": "Create Shipping Label",
+        "description": "Generate shipping labels and automatically update inventory when shipped.",
+        "orderId": "Order ID",
+        "trackingNo": "Tracking Number (optional)",
+        "recipientAddress": "Recipient Address",
+        "createLabel": "Create Label",
+        "creating": "Creating...",
+        "shipmentCreated": "Shipping label created for order #",
+        "trackingInfo": " with tracking ",
+        "success": "Shipping label created successfully",
+        "errors": {
+          "invalidOrderId": "Please enter a valid order ID",
+          "addressRequired": "Recipient address is required",
+          "createError": "Failed to create shipping label"
+        }
+      },
+      "printLabel": {
+        "title": "Print Shipping Label",
+        "description": "Open printable shipping label for parcel attachment.",
+        "orderIdPlaceholder": "Enter order ID",
+        "openPrintableLabel": "Open Printable Label",
+        "apiNotConfigured": "Please enter an order ID to print the shipping label"
+      }
+    },
     "payments": {
+      "title": "Payment Recording",
+      "description": "Record payments received from buyers for each sale order. Track multiple payments per order.",
       "recordPayment": {
         "title": "Record Payment",
+        "description": "Enter payment details to record buyer payments for sale orders.",
         "orderId": "Order ID",
         "amount": "Amount",
         "paymentMethod": "Payment Method",
         "recording": "Recording...",
         "recordPayment": "Record Payment",
+        "paymentRecorded": "Payment recorded for order #",
+        "errors": {
+          "invalidOrderId": "Please enter a valid order ID",
+          "invalidAmount": "Please enter a valid amount",
+          "recordError": "Failed to record payment"
+        },
         "methods": {
           "CREDIT_CARD": "Credit Card",
           "DEBIT_CARD": "Debit Card",

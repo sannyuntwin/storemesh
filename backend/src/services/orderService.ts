@@ -90,6 +90,28 @@ export const createOrder = async (input: CreateOrderInput) => {
   return serializeOrder(created);
 };
 
+export const getOrders = async () => {
+  const orders = await prisma.saleOrder.findMany({
+    include: {
+      items: true,
+      payments: true,
+      shippingLabel: true,
+      buyer: {
+        select: {
+          id: true,
+          username: true,
+          email: true
+        }
+      }
+    },
+    orderBy: {
+      createdAt: 'desc'
+    }
+  });
+
+  return orders.map(serializeOrder);
+};
+
 export const getOrderById = async (id: number) => {
   const order = await prisma.saleOrder.findUnique({
     where: { id },

@@ -10,6 +10,7 @@ import { LogoutButton } from "@/components/auth/LogoutButton";
 import { useCart } from "@/hooks/useCart";
 import { ThemeToggleButton } from "@/components/ThemeToggle";
 import { LanguageToggleButton } from "@/components/LanguageToggle";
+import { canAccessSellerPortal } from "@/utils/authz";
 
 const isActivePath = (pathname: string, href: string): boolean => {
   if (href === "/") {
@@ -31,11 +32,12 @@ export function Navbar({ demoModeEnabled = false }: NavbarProps) {
   const { itemCount } = useCart();
   const { data: session } = useSession();
   const user = session?.user;
+  const showSellerPortal = !user || canAccessSellerPortal(user);
   const exitDemoTarget = pathname.startsWith("/seller") ? "/seller/dashboard" : pathname || "/";
   const links = [
     { href: "/", label: t("navigation.shop") },
     { href: "/cart", label: t("navigation.cart") },
-    { href: "/seller/dashboard", label: t("navigation.seller") }
+    ...(showSellerPortal ? [{ href: "/seller/dashboard", label: t("navigation.seller") }] : [])
   ];
   const categories = [
     { href: "/?category=all", label: t("product.categories.all") },
@@ -143,12 +145,14 @@ export function Navbar({ demoModeEnabled = false }: NavbarProps) {
             ) : null}
           </Link>
 
-          <Link
-            href="/seller/dashboard"
-            className="hidden text-xs font-semibold text-slate-500 transition hover:text-[#0a3f82] lg:inline-flex"
-          >
-            {t("navigation.sellerPortal")}
-          </Link>
+          {showSellerPortal ? (
+            <Link
+              href="/seller/dashboard"
+              className="hidden text-xs font-semibold text-slate-500 transition hover:text-[#0a3f82] lg:inline-flex"
+            >
+              {t("navigation.sellerPortal")}
+            </Link>
+          ) : null}
 
           <ThemeToggleButton />
           <LanguageToggleButton />

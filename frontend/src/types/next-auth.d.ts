@@ -5,6 +5,7 @@ declare module "next-auth" {
     user: DefaultSession["user"] & {
       provider?: string | null;
       googleId?: string | null;
+      role?: "BUYER" | "SELLER" | "ADMIN" | null;
     };
   }
 }
@@ -13,5 +14,6 @@ declare module "next-auth/jwt" {
   interface JWT {
     provider?: string;
     googleId?: string;
+    role?: "BUYER" | "SELLER" | "ADMIN";
   }
 }

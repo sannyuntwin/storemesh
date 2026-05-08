@@ -1,6 +1,8 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { CartItem } from "@/components/CartItem";
 import { CartSummary } from "@/components/CartSummary";
 import { EmptyState } from "@/components/EmptyState";
@@ -12,6 +14,7 @@ import { Button } from "@/components/Button";
 import { getErrorMessage } from "@/utils/errorMessage";
 import { useToast } from "@/components/ToastProvider";
 import { useTranslations } from "next-intl";
+import { syncGoogleRegistration } from "@/services/authSync";
 
 interface CartPageClientProps {
   initialItems: CartLine[];
@@ -19,20 +22,42 @@ interface CartPageClientProps {
 }
 
 export function CartPageClient({ initialItems, usedFallback = false }: CartPageClientProps) {
-  const { items, updateQuantity, removeItem, hydrateFromServer, summary, isHydrated, clearCart } = useCart();
+  const { items, updateQuantity, removeItem, summary, clearCart } = useCart();
   const { pushToast } = useToast();
   const t = useTranslations('cart');
+  const router = useRouter();
+  const { data: session } = useSession();
   const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
   const [orderSuccessMessage, setOrderSuccessMessage] = useState("");
   const [orderErrorMessage, setOrderErrorMessage] = useState("");
-  const hasHydrated = useRef(false);
+  void initialItems;
 
-  useEffect(() => {
-    if (isHydrated && !hasHydrated.current) {
-      hasHydrated.current = true;
-      hydrateFromServer(initialItems, { forceReplace: true });
+  const resolveBuyerId = async (): Promise<string> => {
+    if (usedFallback) {
+      return mockSession.buyerId;
     }
-  }, [isHydrated, hydrateFromServer, initialItems]);
+
+    const currentUser = session?.user;
+    const email = currentUser?.email?.trim().toLowerCase();
+    const username = currentUser?.name?.trim();
+
+    if (!email || !username) {
+      router.push("/login?callbackUrl=/cart");
+      throw new Error("Please sign in before placing an order.");
+    }
+
+    const googleId = currentUser?.googleId?.trim() || undefined;
+    const provider = currentUser?.provider?.trim() || "session";
+
+    const syncResult = await syncGoogleRegistration({
+      googleId,
+      providerAccountId: googleId ?? `${provider}:${email}`,
+      email,
+      username
+    });
+
+    return String(syncResult.user.id);
+  };
 
   const handlePlaceOrder = async () => {
     if (items.length === 0) {
@@ -44,8 +69,9 @@ export function CartPageClient({ initialItems, usedFallback = false }: CartPageC
     setIsSubmittingOrder(true);
 
     try {
+      const buyerId = await resolveBuyerId();
       const orderPayload = {
-        buyerId: mockSession.buyerId,
+        buyerId,
         totalAmount: summary.total,
         items: items.map((line) => ({
           productId: line.product.id,

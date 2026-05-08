@@ -5,6 +5,7 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useState } 
 import { CartLine, Product } from "@/types";
 import { calculateCartSummary } from "@/services/api";
 import { DEMO_MODE_COOKIE_NAME, DEMO_MODE_COOKIE_VALUE } from "@/services/fetcher";
+import { useUser } from "@/contexts/UserContext";
 
 interface CartContextValue {
   items: CartLine[];
@@ -20,6 +21,13 @@ interface CartContextValue {
 
 const CART_STORAGE_KEY_LIVE = "storemesh_cart_live";
 const CART_STORAGE_KEY_DEMO = "storemesh_cart_demo";
+
+const getUserSpecificStorageKey = (userId?: string | null): string => {
+  if (!userId) {
+    return CART_STORAGE_KEY_LIVE;
+  }
+  return `${CART_STORAGE_KEY_LIVE}_user_${userId}`;
+};
 
 const CartContext = createContext<CartContextValue | null>(null);
 
@@ -88,13 +96,21 @@ const readCookieValue = (cookieString: string, name: string): string | null => {
   return decodeURIComponent(cookie.slice(prefix.length));
 };
 
-const getStorageKeyFromMode = (): string => {
+const getStorageKeyFromMode = (userId?: string | null): string => {
   if (typeof window === "undefined") {
     return CART_STORAGE_KEY_LIVE;
   }
 
   const cookieValue = readCookieValue(document.cookie, DEMO_MODE_COOKIE_NAME);
-  return cookieValue === DEMO_MODE_COOKIE_VALUE ? CART_STORAGE_KEY_DEMO : CART_STORAGE_KEY_LIVE;
+  const baseKey = cookieValue === DEMO_MODE_COOKIE_VALUE ? CART_STORAGE_KEY_DEMO : CART_STORAGE_KEY_LIVE;
+  
+  // For demo mode, don't use user-specific keys
+  if (cookieValue === DEMO_MODE_COOKIE_VALUE) {
+    return baseKey;
+  }
+  
+  // For live mode, use user-specific key if user is logged in
+  return getUserSpecificStorageKey(userId);
 };
 
 const readStorage = (storageKey: string): CartLine[] => {
@@ -117,18 +133,21 @@ const readStorage = (storageKey: string): CartLine[] => {
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { userId } = useUser();
   const [items, setItems] = useState<CartLine[]>([]);
   const [activeStorageKey, setActiveStorageKey] = useState(CART_STORAGE_KEY_LIVE);
   const [isHydrated, setIsHydrated] = useState(false);
+  const [previousUserId, setPreviousUserId] = useState<string | null>(null);
 
-  const syncStorageMode = useCallback((forceReload: boolean = false) => {
-    const nextStorageKey = getStorageKeyFromMode();
+  const syncStorageMode = useCallback((userIdParam?: string | null, forceReload: boolean = false) => {
+    const nextStorageKey = getStorageKeyFromMode(userIdParam);
 
     setActiveStorageKey((currentStorageKey) => {
       const storageModeChanged = currentStorageKey !== nextStorageKey;
       const switchingFromDemoToLive = currentStorageKey === CART_STORAGE_KEY_DEMO && nextStorageKey === CART_STORAGE_KEY_LIVE;
+      const switchingUsers = previousUserId !== userIdParam;
 
-      if (storageModeChanged || forceReload) {
+      if (storageModeChanged || forceReload || switchingUsers) {
         if (switchingFromDemoToLive) {
           // Clear cart when switching from demo to live mode
           setItems([]);
@@ -139,16 +158,18 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
 
       return nextStorageKey;
     });
-  }, []);
+    
+    setPreviousUserId(userIdParam || null);
+  }, [previousUserId]);
 
   useEffect(() => {
-    syncStorageMode(true);
+    syncStorageMode(undefined, true);
     setIsHydrated(true);
   }, [syncStorageMode]);
 
   useEffect(() => {
-    syncStorageMode(false);
-  }, [pathname, syncStorageMode]);
+    syncStorageMode(userId, false);
+  }, [pathname, syncStorageMode, userId]);
 
   useEffect(() => {
     if (!isHydrated || typeof window === "undefined") {

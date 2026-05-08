@@ -7,6 +7,7 @@ import { SellerDashboardChartsShell } from "@/components/SellerDashboardChartsSh
 import { Sidebar } from "@/components/Sidebar";
 import { api } from "@/services/api";
 import { isDemoModeEnabled } from "@/services/fetcher";
+import { canAccessSellerPortal } from "@/utils/authz";
 import { formatThaiBahtNoDecimal } from "@/utils/formatCurrency";
 import { getTranslations } from 'next-intl/server';
 
@@ -27,8 +28,14 @@ export default async function SellerDashboardPage() {
     getTranslations('seller.dashboard')
   ]);
 
-  if (!session?.user && !demoModeEnabled) {
-    redirect("/login?callbackUrl=/seller/dashboard");
+  if (!demoModeEnabled) {
+    if (!session?.user) {
+      redirect("/login?callbackUrl=/seller/dashboard");
+    }
+
+    if (!canAccessSellerPortal(session.user)) {
+      redirect("/");
+    }
   }
 
   try {

@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef, useState } from "react";
 import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { Product, SellerStat } from "@/types";
 import { formatThaiBahtNoDecimal } from "@/utils/formatCurrency";
@@ -21,6 +22,9 @@ const toSafeNumber = (value: unknown): number => {
 };
 
 export function SellerDashboardCharts({ stats, products }: SellerDashboardChartsProps) {
+  const chartContainerRef = useRef<HTMLDivElement | null>(null);
+  const [canRenderChart, setCanRenderChart] = useState(false);
+
   const revenue = toNumber(stats.find((item) => item.label === "Revenue")?.value ?? "0");
   const orders = toNumber(stats.find((item) => item.label === "Orders")?.value ?? "0") || products.length * 3;
 
@@ -34,6 +38,25 @@ export function SellerDashboardCharts({ stats, products }: SellerDashboardCharts
     { month: "Jun", sales: Math.round(monthlyBase * 1.1) }
   ];
 
+  useEffect(() => {
+    const node = chartContainerRef.current;
+    if (!node) {
+      return;
+    }
+
+    const updateReadyState = () => {
+      const { width, height } = node.getBoundingClientRect();
+      setCanRenderChart(width > 0 && height > 0);
+    };
+
+    updateReadyState();
+
+    const observer = new ResizeObserver(updateReadyState);
+    observer.observe(node);
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <article className="surface-card min-w-0 p-5">
       <div className="mb-4 flex items-center justify-between gap-2">
@@ -44,19 +67,21 @@ export function SellerDashboardCharts({ stats, products }: SellerDashboardCharts
         <span className="rounded-full bg-[#edf4ff] px-3 py-1 text-xs font-semibold text-[#0a3f82]">{orders.toLocaleString()} orders</span>
       </div>
 
-      <div className="h-72 min-w-0 w-full rounded-xl border border-[#dce8f7] bg-[#f8fbff] p-2">
-        <ResponsiveContainer width="100%" height="100%" minWidth={280} minHeight={220} debounce={120}>
-          <BarChart data={monthlyTrend} margin={{ top: 8, right: 12, left: 4, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#dce8f7" />
-            <XAxis dataKey="month" tick={{ fill: "#64748b", fontSize: 12 }} axisLine={false} tickLine={false} />
-            <YAxis tick={{ fill: "#64748b", fontSize: 12 }} axisLine={false} tickLine={false} width={44} />
-            <Tooltip
-              formatter={(value) => [formatThaiBahtNoDecimal(toSafeNumber(value)), "Sales"]}
-              contentStyle={{ borderRadius: 12, border: "1px solid #d6e4f5" }}
-            />
-            <Bar dataKey="sales" radius={[8, 8, 0, 0]} fill="#0b4f9f" />
-          </BarChart>
-        </ResponsiveContainer>
+      <div ref={chartContainerRef} className="h-72 min-w-0 w-full rounded-xl border border-[#dce8f7] bg-[#f8fbff] p-2">
+        {canRenderChart ? (
+          <ResponsiveContainer width="100%" height="100%" minWidth={280} minHeight={220} debounce={120}>
+            <BarChart data={monthlyTrend} margin={{ top: 8, right: 12, left: 4, bottom: 0 }}>
+              <CartesianGrid strokeDasharray="3 3" stroke="#dce8f7" />
+              <XAxis dataKey="month" tick={{ fill: "#64748b", fontSize: 12 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: "#64748b", fontSize: 12 }} axisLine={false} tickLine={false} width={44} />
+              <Tooltip
+                formatter={(value) => [formatThaiBahtNoDecimal(toSafeNumber(value)), "Sales"]}
+                contentStyle={{ borderRadius: 12, border: "1px solid #d6e4f5" }}
+              />
+              <Bar dataKey="sales" radius={[8, 8, 0, 0]} fill="#0b4f9f" />
+            </BarChart>
+          </ResponsiveContainer>
+        ) : null}
       </div>
     </article>
   );

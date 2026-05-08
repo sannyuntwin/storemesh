@@ -6,6 +6,7 @@ import { ErrorState } from "@/components/ErrorState";
 import { ShippingLabelPrintTool } from "@/components/ShippingLabelPrintTool";
 import { Sidebar } from "@/components/Sidebar";
 import { isDemoModeEnabled } from "@/services/fetcher";
+import { canAccessSellerPortal } from "@/utils/authz";
 import { getTranslations } from 'next-intl/server';
 
 export const metadata: Metadata = {
@@ -19,8 +20,14 @@ export default async function SellerShippingPage() {
     getTranslations('seller.shipping')
   ]);
 
-  if (!session?.user && !demoModeEnabled) {
-    redirect("/login?callbackUrl=/seller/shipping");
+  if (!demoModeEnabled) {
+    if (!session?.user) {
+      redirect("/login?callbackUrl=/seller/shipping");
+    }
+
+    if (!canAccessSellerPortal(session.user)) {
+      redirect("/");
+    }
   }
 
   try {
