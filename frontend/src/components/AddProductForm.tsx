@@ -3,10 +3,13 @@
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import { Button } from "@/components/Button";
 import { useToast } from "@/components/ToastProvider";
 import { mockSession } from "@/config/session";
 import { api } from "@/services/api";
+import { isDemoModeEnabled } from "@/services/fetcher";
+import { syncSellerRegistration } from "@/services/authSync";
 import { ProductInput } from "@/types";
 import { getErrorMessage } from "@/utils/errorMessage";
 
@@ -22,6 +25,7 @@ const initialForm: ProductInput = {
 export function AddProductForm() {
   const router = useRouter();
   const { pushToast } = useToast();
+  const { data: session } = useSession();
   const [form, setForm] = useState<ProductInput>(initialForm);
   const [isSaving, setIsSaving] = useState(false);
   const [isUploadingImage, setIsUploadingImage] = useState(false);
@@ -30,6 +34,27 @@ export function AddProductForm() {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
   const [uploadMessage, setUploadMessage] = useState("");
+
+  const resolveSellerId = async (): Promise<string> => {
+    if (await isDemoModeEnabled()) {
+      return mockSession.sellerId;
+    }
+
+    const email = session?.user?.email?.trim().toLowerCase();
+    const username = session?.user?.name?.trim() || "Seller";
+
+    if (!email) {
+      router.push("/login?callbackUrl=/seller/add-product");
+      throw new Error("Please sign in as a seller account.");
+    }
+
+    const syncResult = await syncSellerRegistration({
+      email,
+      username
+    });
+
+    return String(syncResult.user.id);
+  };
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -46,7 +71,11 @@ export function AddProductForm() {
     setIsSaving(true);
 
     try {
-      await api.createProduct(form);
+      const sellerId = await resolveSellerId();
+      await api.createProduct({
+        ...form,
+        sellerId
+      });
       setSuccessMessage("Product saved successfully.");
       pushToast("Product created successfully.", "success");
       setForm(initialForm);

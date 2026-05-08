@@ -29,10 +29,26 @@ export interface GoogleRegistrationSyncResult {
   profileCompleted: boolean;
 }
 
+export interface SellerRegistrationSyncResult {
+  message: string;
+  user: BuyerProfile;
+}
+
 export const syncGoogleRegistration = async (
   payload: GoogleRegistrationPayload
 ): Promise<GoogleRegistrationSyncResult> => {
   const response = await fetchJson<ApiEnvelope<GoogleRegistrationSyncResult>>("/auth/google/register", {
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
+
+  return response.data;
+};
+
+export const syncSellerRegistration = async (
+  payload: Omit<GoogleRegistrationPayload, "googleId" | "providerAccountId">
+): Promise<SellerRegistrationSyncResult> => {
+  const response = await fetchJson<ApiEnvelope<SellerRegistrationSyncResult>>("/auth/seller/register", {
     method: "POST",
     body: JSON.stringify(payload)
   });

@@ -1,6 +1,6 @@
 import { UserRole } from "@prisma/client";
 import prisma from "../lib/prisma";
-import { GoogleAuthInput, GoogleRegisterInput } from "../utils/validators";
+import { GoogleAuthInput, GoogleRegisterInput, SellerRegisterInput } from "../utils/validators";
 
 export const loginWithGoogleMock = async (payload: GoogleAuthInput) => {
   const existingByGoogleId = await prisma.user.findUnique({
@@ -85,6 +85,36 @@ export const registerGoogleBuyer = async (payload: GoogleRegisterInput) => {
       username: payload.username,
       address: payload.address,
       role: UserRole.BUYER
+    }
+  });
+};
+
+export const registerSellerAccount = async (payload: SellerRegisterInput) => {
+  const normalizedEmail = payload.email.trim().toLowerCase();
+
+  const existingByEmail = await prisma.user.findUnique({
+    where: {
+      email: normalizedEmail
+    }
+  });
+
+  if (existingByEmail) {
+    return prisma.user.update({
+      where: { id: existingByEmail.id },
+      data: {
+        username: payload.username,
+        address: payload.address ?? existingByEmail.address,
+        role: UserRole.SELLER
+      }
+    });
+  }
+
+  return prisma.user.create({
+    data: {
+      email: normalizedEmail,
+      username: payload.username,
+      address: payload.address,
+      role: UserRole.SELLER
     }
   });
 };

@@ -51,6 +51,12 @@ export interface GoogleRegisterInput {
   address?: string;
 }
 
+export interface SellerRegisterInput {
+  email: string;
+  username: string;
+  address?: string;
+}
+
 export interface CreateShippingLabelInput {
   trackingNo?: string;
   recipientAddress?: string;
@@ -252,6 +258,23 @@ export const validateGoogleRegister = (body: unknown): GoogleRegisterInput => {
   return {
     googleId,
     providerAccountId,
+    email,
+    username,
+    address
+  };
+};
+
+export const validateSellerRegister = (body: unknown): SellerRegisterInput => {
+  if (!isObject(body)) {
+    throw new BadRequestError("Request body must be an object");
+  }
+
+  const email = requireString(body.email, "email").toLowerCase();
+  const username = requireString(body.username, "username");
+  const address =
+    typeof body.address === "string" && body.address.trim().length > 0 ? body.address.trim() : undefined;
+
+  return {
     email,
     username,
     address
