@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 
 type Theme = "light" | "dark" | "system";
 
@@ -17,45 +17,60 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("system");
   const [resolvedTheme, setResolvedTheme] = useState<"light" | "dark">("light");
 
-  const setTheme = (newTheme: Theme) => {
-    setThemeState(newTheme);
-    localStorage.setItem("theme", newTheme);
-    applyTheme(newTheme);
-  };
+  const applyTheme = useCallback((targetTheme: Theme) => {
+    if (typeof window === "undefined") {
+      return;
+    }
 
-  const toggleTheme = () => {
-    const newTheme = theme === "light" ? "dark" : "light";
-    setTheme(newTheme);
-  };
-
-  const applyTheme = (theme: Theme) => {
     const root = window.document.documentElement;
     root.classList.remove("light", "dark");
 
-    if (theme === "system") {
+    if (targetTheme === "system") {
       const systemTheme = window.matchMedia("(prefers-color-scheme: dark)").matches
         ? "dark"
         : "light";
       root.classList.add(systemTheme);
       setResolvedTheme(systemTheme);
     } else {
-      root.classList.add(theme);
-      setResolvedTheme(theme);
+      root.classList.add(targetTheme);
+      setResolvedTheme(targetTheme);
     }
-  };
+  }, []);
+
+  const setTheme = useCallback((newTheme: Theme) => {
+    setThemeState(newTheme);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("theme", newTheme);
+    }
+  }, []);
+
+  const toggleTheme = useCallback(() => {
+    setTheme(theme === "light" ? "dark" : "light");
+  }, [setTheme, theme]);
 
   useEffect(() => {
-    // Load saved theme preference
+    if (typeof window === "undefined") {
+      return;
+    }
+
     const savedTheme = localStorage.getItem("theme") as Theme | null;
     if (savedTheme && ["light", "dark", "system"].includes(savedTheme)) {
       setThemeState(savedTheme);
-      applyTheme(savedTheme);
-    } else {
-      // Default to system theme
-      applyTheme("system");
+      return;
     }
 
-    // Listen for system theme changes
+    setThemeState("system");
+  }, []);
+
+  useEffect(() => {
+    applyTheme(theme);
+  }, [applyTheme, theme]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
     const handleChange = () => {
       if (theme === "system") {
@@ -65,10 +80,15 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
     mediaQuery.addEventListener("change", handleChange);
     return () => mediaQuery.removeEventListener("change", handleChange);
-  }, []);
+  }, [applyTheme, theme]);
+
+  const value = useMemo(
+    () => ({ theme, setTheme, toggleTheme, resolvedTheme }),
+    [resolvedTheme, setTheme, theme, toggleTheme]
+  );
 
   return (
-    <ThemeContext.Provider value={{ theme, setTheme, toggleTheme, resolvedTheme }}>
+    <ThemeContext.Provider value={value}>
       {children}
     </ThemeContext.Provider>
   );

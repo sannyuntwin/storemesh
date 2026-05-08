@@ -4,7 +4,6 @@ type ProductWithExtras = Product & {
   seller?: {
     id: number;
     username: string;
-    email: string;
   } | null;
 };
 

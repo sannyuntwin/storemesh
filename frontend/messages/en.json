@@ -123,7 +123,27 @@
     "continueShopping": "Continue Shopping",
     "remove": "Remove",
     "update": "Update",
-    "quantity": "Quantity"
+    "quantity": "Quantity",
+    "secureCheckout": "Secure checkout",
+    "fastDispatch": "Fast dispatch",
+    "liveStockValidation": "Live stock validation",
+    "demoModeActive": "Front-end Developer Test Demo mode is active. Showing mock cart data.",
+    "emptyTitle": "Your cart is empty",
+    "emptyDescription": "Looks like you have not added anything yet. Find products and add your first item.",
+    "browseProducts": "Browse products",
+    "placingOrder": "Placing order...",
+    "placeOrder": "Place order",
+    "policyAgreement": "By placing an order, you agree to our shipping and return policies.",
+    "loadErrorTitle": "Unable to load cart",
+    "loadErrorDescription": "Please refresh and try again.",
+    "loadErrorAction": "Back to shop",
+    "summary": {
+      "title": "Order Summary",
+      "subtotal": "Subtotal",
+      "shipping": "Shipping",
+      "tax": "Tax",
+      "total": "Total"
+    }
   },
   "seller": {
     "dashboard": {
@@ -233,74 +253,15 @@
       "cookiePolicy": "Cookie Policy"
     }
   },
-  "seller": {
-    "dashboard": {
-      "title": "Seller Dashboard",
-      "welcome": "Welcome to Seller Panel",
-      "overview": "Overview",
-      "stats": {
-        "revenue": "Revenue",
-        "orders": "Orders",
-        "returns": "Returns"
-      }
+  "home": {
+    "featuredDrop": "Featured Drop",
+    "heroTitle": "Discover Amazing Products",
+    "heroDescription": "Shop from our curated collection of quality products with fast shipping and secure checkout.",
+    "tags": {
+      "freeShipping": "Free Shipping",
+      "fastDispatch": "Fast Dispatch",
+      "secureCheckout": "Secure Checkout"
     },
-    "products": {
-      "title": "Seller Products",
-      "addProduct": "Add Product",
-      "manageProducts": "Manage your product listings and update stock in one place.",
-      "total": "total",
-      "lowStock": "low stock",
-      "outOfStock": "out of stock",
-      "allInventory": "All inventory",
-      "lowStockOnly": "Low stock only",
-      "outOfStockOnly": "Out of stock only",
-      "sortBy": "Sort",
-      "sortByQtyHigh": "Sort: Qty high to low",
-      "sortByQtyLow": "Sort: Qty low to high",
-      "sortByPriceHigh": "Sort: Price high to low",
-      "sortByPriceLow": "Sort: Price low to high",
-      "sortByTitle": "Sort: Title A-Z",
-      "noProducts": "No products match this filter.",
-      "addStock": "Add Stock",
-      "status": "Status",
-      "healthy": "Healthy",
-      "product": "Product"
-    },
-    "addProduct": {
-      "title": "Add Product",
-      "description": "Fill only the required product information.",
-      "productTitle": "Product Title",
-      "unitPrice": "Unit Price",
-      "inventoryQuantity": "Inventory Quantity",
-      "image": "Image",
-      "productDescription": "Product Description",
-      "uploadImage": "Upload Image",
-      "createProduct": "Create Product",
-      "saving": "Saving...",
-      "pleaseUploadImage": "Please upload a product image.",
-      "imageUploaded": "Image uploaded successfully.",
-      "productCreated": "Product created successfully.",
-      "productSaved": "Product saved successfully. Redirecting...",
-      "couldNotSave": "Could not save product. Please try again.",
-      "couldNotUpload": "Could not upload image. Please try again.",
-      "supportedFormats": "JPG, PNG, WEBP (max 5MB)"
-    },
-    "payments": {
-      "recordPayment": {
-        "title": "Record Payment",
-        "orderId": "Order ID",
-        "amount": "Amount",
-        "paymentMethod": "Payment Method",
-        "recording": "Recording...",
-        "recordPayment": "Record Payment",
-        "methods": {
-          "CREDIT_CARD": "Credit Card",
-          "DEBIT_CARD": "Debit Card",
-          "BANK_TRANSFER": "Bank Transfer",
-          "CASH_ON_DELIVERY": "Cash on Delivery",
-          "EWALLET": "E-Wallet"
-        }
-      }
-    }
+    "categoryLabel": "Shop by Category"
   }
 }

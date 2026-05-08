@@ -1,4 +1,5 @@
-const DEFAULT_TIMEOUT_MS = 8000;
+export const DEFAULT_TIMEOUT_MS = 8000;
+const API_CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 export const DEMO_MODE_COOKIE_NAME = "storemesh_demo_mode";
 export const DEMO_MODE_COOKIE_VALUE = "mock";
 
@@ -71,11 +72,40 @@ const createUrl = (path: string): string => {
   return `${base}${path.startsWith("/") ? path : `/${path}`}`;
 };
 
+type CachedResponse = {
+  data: unknown;
+  timestamp: number;
+};
+
+const apiCache = new Map<string, CachedResponse>();
+
+const getFromCache = <T>(key: string): T | null => {
+  const cached = apiCache.get(key);
+  if (cached && Date.now() - cached.timestamp < API_CACHE_DURATION) {
+    return cached.data as T;
+  }
+  apiCache.delete(key);
+  return null;
+};
+
+const setCache = (key: string, data: unknown): void => {
+  apiCache.set(key, { data, timestamp: Date.now() });
+};
+
 export const fetchJson = async <T>(
   path: string,
   init?: RequestInit,
-  timeoutMs: number = DEFAULT_TIMEOUT_MS
+  timeoutMs: number = DEFAULT_TIMEOUT_MS,
+  useCache: boolean = false
 ): Promise<T> => {
+  const cacheKey = `${JSON.stringify(init || {})}-${path}`;
+
+  if (useCache) {
+    const cached = getFromCache<T>(cacheKey);
+    if (cached) {
+      return cached;
+    }
+  }
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
@@ -88,7 +118,7 @@ export const fetchJson = async <T>(
         ...(init?.headers ?? {})
       },
       signal: controller.signal,
-      cache: "no-store"
+      cache: useCache ? "force-cache" : "no-store"
     });
 
     if (!response.ok) {
@@ -114,7 +144,11 @@ export const fetchJson = async <T>(
       throw new ApiRequestError(message, response.status, details);
     }
 
-    return (await response.json()) as T;
+    const result = await response.json();
+    if (useCache) {
+      setCache(cacheKey, result);
+    }
+    return result as T;
   } catch (error) {
     if (error instanceof ApiRequestError) {
       throw error;

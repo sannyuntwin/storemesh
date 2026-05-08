@@ -4,6 +4,13 @@ import type { NextConfig } from "next";
 const withNextIntl = createNextIntlPlugin('./src/i18n/request.ts');
 
 const nextConfig: NextConfig = {
+  experimental: {
+    optimizePackageImports: ['recharts'],
+  },
+  turbopack: {},
+  compress: true,
+  poweredByHeader: false,
+  reactStrictMode: true,
   async redirects() {
     return [
       {
@@ -14,6 +21,7 @@ const nextConfig: NextConfig = {
     ];
   },
   images: {
+    formats: ['image/webp', 'image/avif'],
     remotePatterns: [
       {
         protocol: "https",
@@ -46,6 +54,10 @@ const nextConfig: NextConfig = {
         hostname: "djjxtvqx2.cloudinary.com",
       },
     ],
+    minimumCacheTTL: 60 * 60 * 24,
+  },
+  compiler: {
+    removeConsole: process.env.NODE_ENV === 'production',
   },
 };
 

@@ -13,10 +13,11 @@ import {
   ApiRequestError,
   fetchJson,
   isDemoModeEnabled,
-  shouldUseRemoteApi
+  shouldUseRemoteApi,
+  DEFAULT_TIMEOUT_MS
 } from "@/services/fetcher";
 
-const API_LATENCY_MS = 500;
+const API_LATENCY_MS = 0;
 
 type ApiEnvelope<T> = {
   success: boolean;
@@ -70,6 +71,10 @@ export const endpoints = {
 };
 
 const wait = async (ms: number): Promise<void> => {
+  if (ms <= 0) {
+    return;
+  }
+
   await new Promise((resolve) => setTimeout(resolve, ms));
 };
 
@@ -177,7 +182,7 @@ export const api = {
   async getProductsWithMeta(): Promise<ApiResult<Product[]>> {
     return resolveWithMode(
       async () => {
-        const response = await fetchJson<ApiEnvelope<BackendProduct[]>>(endpoints.products);
+        const response = await fetchJson<ApiEnvelope<BackendProduct[]>>(endpoints.products, undefined, DEFAULT_TIMEOUT_MS, true);
         return response.data.map(toProduct);
       },
       () => useMockData(async () => localProducts)
@@ -192,7 +197,7 @@ export const api = {
   async getProductByIdWithMeta(id: string): Promise<ApiResult<Product | null>> {
     return resolveWithMode(
       async () => {
-        const response = await fetchJson<ApiEnvelope<BackendProduct>>(endpoints.productById(id));
+        const response = await fetchJson<ApiEnvelope<BackendProduct>>(endpoints.productById(id), undefined, DEFAULT_TIMEOUT_MS, true);
         return toProduct(response.data);
       },
       () => useMockData(async () => localProducts.find((product) => product.id === id) ?? null)
@@ -212,7 +217,7 @@ export const api = {
   async getCartWithMeta(): Promise<ApiResult<CartPayload>> {
     return resolveWithMode(
       async () => {
-        const data = await fetchJson<ApiEnvelope<{ items: CartLine[] }>>(endpoints.cart);
+        const data = await fetchJson<ApiEnvelope<{ items: CartLine[] }>>(endpoints.cart, undefined, DEFAULT_TIMEOUT_MS, true);
         return {
           items: data.data.items,
           summary: calculateCartSummary(data.data.items)
@@ -234,7 +239,7 @@ export const api = {
   async getSellerStatsWithMeta(): Promise<ApiResult<SellerStat[]>> {
     return resolveWithMode(
       async () => {
-        const response = await fetchJson<ApiEnvelope<SellerStat[]>>(endpoints.sellerStats);
+        const response = await fetchJson<ApiEnvelope<SellerStat[]>>(endpoints.sellerStats, undefined, DEFAULT_TIMEOUT_MS, true);
         return response.data;
       },
       () =>

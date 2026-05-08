@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/Button";
 import { useToast } from "@/components/ToastProvider";
@@ -46,12 +47,10 @@ export function AddProductForm() {
 
     try {
       await api.createProduct(form);
-      setSuccessMessage("Product saved successfully. Redirecting...");
+      setSuccessMessage("Product saved successfully.");
       pushToast("Product created successfully.", "success");
       setForm(initialForm);
-      setTimeout(() => {
-        router.push("/seller/products");
-      }, 800);
+      router.push("/seller/products");
     } catch (error) {
       const message = getErrorMessage(error, "Could not save product. Please try again.");
       setErrorMessage(message);
@@ -172,7 +171,14 @@ export function AddProductForm() {
         {previewSource ? (
           <div className="overflow-hidden rounded-xl border border-slate-200 bg-slate-50 p-2">
             <div className="relative h-44 w-full">
-              <img src={previewSource} alt="Selected product preview" className="h-full w-full rounded-lg object-cover" />
+              <Image
+                src={previewSource}
+                alt="Selected product preview"
+                fill
+                className="rounded-lg object-cover"
+                sizes="(max-width: 768px) 100vw, 600px"
+                unoptimized
+              />
             </div>
           </div>
         ) : null}

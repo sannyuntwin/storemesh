@@ -1,6 +1,7 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { memo, useMemo } from "react";
+import { FormEvent, useState, useCallback } from "react";
 import { Button } from "@/components/Button";
 import { useToast } from "@/components/ToastProvider";
 import { api } from "@/services/api";
@@ -15,7 +16,7 @@ const paymentMethods = [
   "EWALLET"
 ] as const;
 
-export function RecordPaymentTool() {
+export const RecordPaymentTool = memo(function RecordPaymentTool() {
   const { pushToast } = useToast();
   const t = useTranslations('seller.payments.recordPayment');
   const [orderId, setOrderId] = useState("");
@@ -25,7 +26,9 @@ export function RecordPaymentTool() {
   const [successMessage, setSuccessMessage] = useState("");
   const [errorMessage, setErrorMessage] = useState("");
 
-  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+  const paymentMethodsOptions = useMemo(() => paymentMethods, []);
+
+  const handleSubmit = useCallback(async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setSuccessMessage("");
     setErrorMessage("");
@@ -67,7 +70,7 @@ export function RecordPaymentTool() {
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [orderId, amount, paymentMethod, pushToast, t]);
 
   return (
     <section className="surface-card p-4">
@@ -111,13 +114,11 @@ export function RecordPaymentTool() {
             value={paymentMethod}
             onChange={(event) => setPaymentMethod(event.target.value as (typeof paymentMethods)[number])}
           >
-            {paymentMethods.map((method) => {
-              return (
-                <option key={method} value={method}>
-                  {t(`methods.${method}`)}
-                </option>
-              );
-            })}
+            {paymentMethodsOptions.map((method) => (
+              <option key={method} value={method}>
+                {t(`methods.${method}`)}
+              </option>
+            ))}
           </select>
         </label>
 
@@ -132,4 +133,4 @@ export function RecordPaymentTool() {
       {errorMessage ? <p className="mt-3 text-sm font-medium text-rose-700">{errorMessage}</p> : null}
     </section>
   );
-}
+});

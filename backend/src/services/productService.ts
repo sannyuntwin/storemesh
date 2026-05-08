@@ -12,12 +12,19 @@ const assertSellerRole = (role: UserRole, userId: number) => {
 
 export const getProducts = async () => {
   const products = await prisma.product.findMany({
-    include: {
+    select: {
+      id: true,
+      sellerId: true,
+      image: true,
+      title: true,
+      description: true,
+      unitPrice: true,
+      quantity: true,
+      createdAt: true,
       seller: {
         select: {
           id: true,
-          username: true,
-          email: true
+          username: true
         }
       }
     },
@@ -32,12 +39,19 @@ export const getProducts = async () => {
 export const getProductById = async (id: number) => {
   const product = await prisma.product.findUnique({
     where: { id },
-    include: {
+    select: {
+      id: true,
+      sellerId: true,
+      image: true,
+      title: true,
+      description: true,
+      unitPrice: true,
+      quantity: true,
+      createdAt: true,
       seller: {
         select: {
           id: true,
-          username: true,
-          email: true
+          username: true
         }
       }
     }

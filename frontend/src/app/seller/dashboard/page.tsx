@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import { auth } from "@/auth";
 import { ErrorState } from "@/components/ErrorState";
-import { SellerDashboardCharts } from "@/components/SellerDashboardCharts";
+import { SellerDashboardChartsShell } from "@/components/SellerDashboardChartsShell";
 import { Sidebar } from "@/components/Sidebar";
 import { api } from "@/services/api";
 import { isDemoModeEnabled } from "@/services/fetcher";
@@ -94,22 +95,22 @@ export default async function SellerDashboardPage() {
           </div>
 
           <div className="grid gap-4 xl:grid-cols-[1.7fr_1fr]">
-            <SellerDashboardCharts stats={stats} products={products} />
+            <SellerDashboardChartsShell stats={stats} products={products} />
             <article className="surface-card p-5">
               <h2 className="text-base font-bold text-slate-900">{t("actionNeeded")}</h2>
               <div className="mt-3 space-y-2 text-sm">
-                <a href="/seller/products" className="flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2 hover:bg-slate-50">
+                <Link href="/seller/products" className="flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2 hover:bg-slate-50">
                   <span>◍ {t("lowStockItems")}</span>
                   <span className="font-semibold text-[#0b4f9f]">{lowStockCount}</span>
-                </a>
-                <a href="/seller/shipping" className="flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2 hover:bg-slate-50">
+                </Link>
+                <Link href="/seller/shipping" className="flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2 hover:bg-slate-50">
                   <span>↗ {t("pendingShipment")}</span>
                   <span className="font-semibold text-[#0b4f9f]">{pendingShipmentCount}</span>
-                </a>
-                <a href="/seller/payments" className="flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2 hover:bg-slate-50">
+                </Link>
+                <Link href="/seller/payments" className="flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2 hover:bg-slate-50">
                   <span>฿ {t("paymentUpdates")}</span>
                   <span className="font-semibold text-[#0b4f9f]">{Math.max(1, Math.round(orders * 0.2))}</span>
-                </a>
+                </Link>
               </div>
             </article>
           </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useLocale } from "next-intl";
 
@@ -26,16 +26,16 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const locale = useLocale();
   const [language, setLanguageState] = useState<Language>(toSupportedLanguage(locale));
 
-  const persistLanguage = (newLanguage: Language) => {
+  const persistLanguage = useCallback((newLanguage: Language) => {
     if (typeof window === "undefined") {
       return;
     }
 
     localStorage.setItem(LANGUAGE_STORAGE_KEY, newLanguage);
     document.cookie = `${LANGUAGE_COOKIE_NAME}=${newLanguage}; path=/; max-age=${LANGUAGE_COOKIE_MAX_AGE_SECONDS}; samesite=lax`;
-  };
+  }, []);
 
-  const setLanguage = (newLanguage: Language) => {
+  const setLanguage = useCallback((newLanguage: Language) => {
     if (newLanguage === language) {
       return;
     }
@@ -43,12 +43,11 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
     setLanguageState(newLanguage);
     persistLanguage(newLanguage);
     router.refresh();
-  };
+  }, [language, persistLanguage, router]);
 
-  const toggleLanguage = () => {
-    const newLanguage = language === "en" ? "th" : "en";
-    setLanguage(newLanguage);
-  };
+  const toggleLanguage = useCallback(() => {
+    setLanguage(language === "en" ? "th" : "en");
+  }, [language, setLanguage]);
 
   const isRTL = false;
 
@@ -61,10 +60,15 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
     setLanguageState(currentLocaleLanguage);
     persistLanguage(currentLocaleLanguage);
-  }, [locale]);
+  }, [locale, persistLanguage]);
+
+  const value = useMemo(
+    () => ({ language, setLanguage, toggleLanguage, isRTL }),
+    [isRTL, language, setLanguage, toggleLanguage]
+  );
 
   return (
-    <LanguageContext.Provider value={{ language, setLanguage, toggleLanguage, isRTL }}>
+    <LanguageContext.Provider value={value}>
       {children}
     </LanguageContext.Provider>
   );

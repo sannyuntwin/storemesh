@@ -16,9 +16,9 @@ export default async function CartPage() {
     return <CartPageClient initialItems={cart.data.items} usedFallback={cart.usedFallback} />;
   } catch {
     return <ErrorState 
-      title="ไม่สามารถโหลดตะกร้าได้" 
-      description="กรุณารีเฟรชแล้วลองใหม่" 
-      actionLabel="กลับไปที่ร้านค้า" 
+      title={t("loadErrorTitle")} 
+      description={t("loadErrorDescription")} 
+      actionLabel={t("loadErrorAction")} 
       actionHref="/" 
     />;
   }
