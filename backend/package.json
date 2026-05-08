@@ -2,6 +2,9 @@
   "name": "storemesh-backend",
   "version": "1.0.0",
   "private": true,
+  "engines": {
+    "node": "20.x"
+  },
   "description": "REST API backend for Storemesh e-commerce",
   "main": "dist/server.js",
   "scripts": {
