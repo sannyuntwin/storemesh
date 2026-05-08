@@ -4,15 +4,21 @@ import { auth } from "@/auth";
 import { ErrorState } from "@/components/ErrorState";
 import { RecordPaymentTool } from "@/components/RecordPaymentTool";
 import { Sidebar } from "@/components/Sidebar";
+import { isDemoModeEnabled } from "@/services/fetcher";
+import { getTranslations } from 'next-intl/server';
 
 export const metadata: Metadata = {
   title: "Seller Payments"
 };
 
 export default async function SellerPaymentsPage() {
-  const session = await auth();
+  const [session, demoModeEnabled, t] = await Promise.all([
+    auth(), 
+    isDemoModeEnabled(),
+    getTranslations('seller.payments')
+  ]);
 
-  if (!session?.user) {
+  if (!session?.user && !demoModeEnabled) {
     redirect("/login?callbackUrl=/seller/payments");
   }
 
@@ -22,8 +28,8 @@ export default async function SellerPaymentsPage() {
         <Sidebar />
         <section className="space-y-4">
           <article className="surface-card p-6">
-            <h1 className="text-2xl font-black text-slate-900 md:text-3xl">Payments</h1>
-            <p className="mt-1 text-sm text-slate-600">Record buyer payments for each sale order.</p>
+            <h1 className="text-2xl font-black text-slate-900 md:text-3xl">{t("title")}</h1>
+            <p className="mt-1 text-sm text-slate-600">{t("description")}</p>
           </article>
           <RecordPaymentTool />
         </section>
@@ -32,9 +38,9 @@ export default async function SellerPaymentsPage() {
   } catch {
     return (
       <ErrorState
-        title="Unable to load payment tools"
-        description="We could not load seller payment tools right now."
-        actionLabel="Go to dashboard"
+        title={t("error.unableToLoad")}
+        description={t("error.description")}
+        actionLabel={t("error.goToDashboard")}
         actionHref="/seller/dashboard"
       />
     );

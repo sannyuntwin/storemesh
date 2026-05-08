@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useTranslations } from "next-intl";
 import type { ReactElement } from "react";
 import { useState } from "react";
 
@@ -84,36 +85,6 @@ const SettingsIcon = () => (
   </svg>
 );
 
-const groups: NavGroup[] = [
-  {
-    title: "Core",
-    items: [
-      { label: "Dashboard", icon: DashboardIcon, href: "/seller/dashboard" },
-      { label: "Orders", icon: OrdersIcon, soon: true }
-    ]
-  },
-  {
-    title: "Catalog",
-    items: [{ label: "Products", icon: InventoryIcon, href: "/seller/products" }]
-  },
-  {
-    title: "Fulfillment",
-    items: [
-      { label: "Shipping", icon: ShipmentIcon, href: "/seller/shipping" },
-      { label: "Payments", icon: PaymentIcon, href: "/seller/payments" }
-    ]
-  },
-  {
-    title: "Growth",
-    items: [
-      { label: "Marketing", icon: MarketingIcon, soon: true },
-      { label: "Analytics", icon: AnalyticsIcon, soon: true },
-      { label: "Messages", icon: MessagesIcon, soon: true },
-      { label: "Settings", icon: SettingsIcon, soon: true }
-    ]
-  }
-];
-
 const isActivePath = (pathname: string, href: string): boolean => {
   const normalized = href.split("#")[0];
   return pathname.startsWith(normalized);
@@ -122,13 +93,44 @@ const isActivePath = (pathname: string, href: string): boolean => {
 export function Sidebar() {
   const pathname = usePathname();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const t = useTranslations('seller.sidebar');
+
+  const groups: NavGroup[] = [
+    {
+      title: t("groups.core"),
+      items: [
+        { label: t("items.dashboard"), icon: DashboardIcon, href: "/seller/dashboard" },
+        { label: t("items.orders"), icon: OrdersIcon, soon: true }
+      ]
+    },
+    {
+      title: t("groups.catalog"),
+      items: [{ label: t("items.products"), icon: InventoryIcon, href: "/seller/products" }]
+    },
+    {
+      title: t("groups.fulfillment"),
+      items: [
+        { label: t("items.shipping"), icon: ShipmentIcon, href: "/seller/shipping" },
+        { label: t("items.payments"), icon: PaymentIcon, href: "/seller/payments" }
+      ]
+    },
+    {
+      title: t("groups.growth"),
+      items: [
+        { label: t("items.marketing"), icon: MarketingIcon, soon: true },
+        { label: t("items.analytics"), icon: AnalyticsIcon, soon: true },
+        { label: t("items.messages"), icon: MessagesIcon, soon: true },
+        { label: t("items.settings"), icon: SettingsIcon, soon: true }
+      ]
+    }
+  ];
 
   return (
     <aside className="surface-card p-4 lg:sticky lg:top-24 lg:h-fit">
       <div className="mb-4 flex items-start justify-between gap-3">
         <div>
-          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#0a3f82]">Seller Panel</p>
-          <p className="mt-1 text-xs text-slate-500">Marketplace style</p>
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-[#0a3f82]">{t("title")}</p>
+          <p className="mt-1 text-xs text-slate-500">{t("subtitle")}</p>
         </div>
         <button
           type="button"
@@ -137,7 +139,7 @@ export function Sidebar() {
           aria-expanded={mobileOpen}
           aria-controls="seller-sidebar-nav"
         >
-          {mobileOpen ? "Close" : "Menu"}
+          {mobileOpen ? t("close") : t("menu")}
         </button>
       </div>
 
@@ -180,7 +182,7 @@ export function Sidebar() {
                         <span>{item.label}</span>
                       </span>
                       <span className="rounded-full border border-slate-200 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.08em]">
-                        Soon
+                        {t("comingSoon")}
                       </span>
                     </div>
                   );

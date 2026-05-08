@@ -40,7 +40,7 @@ export default async function ProductDetailPage({ params }: ProductDetailPagePro
     <div className="space-y-4">
       {result.usedFallback ? (
         <section className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-          Showing mock product because backend API is currently unavailable.
+          Front-end Developer Test Demo mode is active. Showing mock product data.
         </section>
       ) : null}
       <ProductDetail product={product} />

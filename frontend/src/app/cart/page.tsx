@@ -2,16 +2,24 @@ import type { Metadata } from "next";
 import { ErrorState } from "@/components/ErrorState";
 import { CartPageClient } from "@/components/CartPageClient";
 import { api } from "@/services/api";
+import { getTranslations } from 'next-intl/server';
 
 export const metadata: Metadata = {
   title: "Your Cart"
 };
 
 export default async function CartPage() {
+  const t = await getTranslations('cart');
+  
   try {
     const cart = await api.getCartWithMeta();
     return <CartPageClient initialItems={cart.data.items} usedFallback={cart.usedFallback} />;
   } catch {
-    return <ErrorState title="Unable to load cart" description="Please refresh and try again." actionLabel="Back to shop" actionHref="/" />;
+    return <ErrorState 
+      title="ไม่สามารถโหลดตะกร้าได้" 
+      description="กรุณารีเฟรชแล้วลองใหม่" 
+      actionLabel="กลับไปที่ร้านค้า" 
+      actionHref="/" 
+    />;
   }
 }

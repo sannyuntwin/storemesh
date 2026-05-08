@@ -5,22 +5,11 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { FormEvent, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import { LogoutButton } from "@/components/auth/LogoutButton";
 import { useCart } from "@/hooks/useCart";
-
-const links = [
-  { href: "/", label: "Shop" },
-  { href: "/cart", label: "Cart" },
-  { href: "/seller/dashboard", label: "Seller" }
-];
-
-const categories = [
-  { href: "/?category=all", label: "All Products" },
-  { href: "/?category=new", label: "New Arrivals" },
-  { href: "/?category=electronics", label: "Electronics" },
-  { href: "/?category=fashion", label: "Fashion" },
-  { href: "/?category=home", label: "Home Living" }
-];
+import { ThemeToggleButton } from "@/components/ThemeToggle";
+import { LanguageToggleButton } from "@/components/LanguageToggle";
 
 const isActivePath = (pathname: string, href: string): boolean => {
   if (href === "/") {
@@ -29,7 +18,12 @@ const isActivePath = (pathname: string, href: string): boolean => {
   return pathname.startsWith(href);
 };
 
-export function Navbar() {
+interface NavbarProps {
+  demoModeEnabled?: boolean;
+}
+
+export function Navbar({ demoModeEnabled = false }: NavbarProps) {
+  const t = useTranslations();
   const router = useRouter();
   const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -37,6 +31,19 @@ export function Navbar() {
   const { itemCount } = useCart();
   const { data: session } = useSession();
   const user = session?.user;
+  const exitDemoTarget = pathname.startsWith("/seller") ? "/seller/dashboard" : pathname || "/";
+  const links = [
+    { href: "/", label: t("navigation.shop") },
+    { href: "/cart", label: t("navigation.cart") },
+    { href: "/seller/dashboard", label: t("navigation.seller") }
+  ];
+  const categories = [
+    { href: "/?category=all", label: t("product.categories.all") },
+    { href: "/?category=new", label: t("product.categories.new") },
+    { href: "/?category=electronics", label: t("product.categories.electronics") },
+    { href: "/?category=fashion", label: t("product.categories.fashion") },
+    { href: "/?category=home", label: t("product.categories.home") }
+  ];
 
   useEffect(() => {
     setIsMenuOpen(false);
@@ -56,8 +63,16 @@ export function Navbar() {
   return (
     <header className="sticky top-0 z-40 border-b border-blue-100/90 bg-white/95 backdrop-blur-xl">
       <div className="bg-[#0b4f9f] px-4 py-2 text-center text-xs font-semibold tracking-[0.06em] text-white sm:px-6 lg:px-8">
-        Free shipping over ฿50 · Same-day dispatch for paid orders
+        {t("navbar.announcement")}
       </div>
+      {demoModeEnabled ? (
+        <div className="bg-amber-100 px-4 py-2 text-center text-xs font-semibold tracking-[0.04em] text-amber-900 sm:px-6 lg:px-8">
+          Front-end Developer Test Demo: interface showcase with mock data (HTML/CSS/JavaScript implementation).
+          <a href={`/live?next=${encodeURIComponent(exitDemoTarget)}`} className="ml-2 underline decoration-amber-700/70 underline-offset-2">
+            Exit Demo Mode
+          </a>
+        </div>
+      ) : null}
 
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex shrink-0 items-center gap-2">
@@ -79,11 +94,11 @@ export function Navbar() {
               type="search"
               value={search}
               onChange={(event) => setSearch(event.target.value)}
-              placeholder="Search products, brands, categories..."
+              placeholder={t("search.placeholder")}
               className="h-10 w-full border-0 bg-transparent px-2 text-sm text-slate-700 outline-none"
             />
             <button type="submit" className="rounded-lg bg-[#0b4f9f] px-3 py-1.5 text-xs font-bold text-white hover:bg-[#0e62c4]">
-              Search
+              {t("search.button")}
             </button>
           </div>
         </form>
@@ -94,7 +109,7 @@ export function Navbar() {
               {user.image ? (
                 <Image
                   src={user.image}
-                  alt={user.name ?? "User avatar"}
+                  alt={user.name ?? t("common.userAvatar")}
                   width={28}
                   height={28}
                   className="h-7 w-7 rounded-full object-cover"
@@ -105,7 +120,7 @@ export function Navbar() {
                 </span>
               )}
               <div className="max-w-36">
-                <p className="truncate text-xs font-semibold text-[#0a3f82]">{user.name ?? "Signed in"}</p>
+                <p className="truncate text-xs font-semibold text-[#0a3f82]">{user.name ?? t("common.signedIn")}</p>
                 <p className="truncate text-[11px] text-slate-500">{user.email ?? ""}</p>
               </div>
             </div>
@@ -132,8 +147,11 @@ export function Navbar() {
             href="/seller/dashboard"
             className="hidden text-xs font-semibold text-slate-500 transition hover:text-[#0a3f82] lg:inline-flex"
           >
-            Seller Portal
+            {t("navigation.sellerPortal")}
           </Link>
+
+          <ThemeToggleButton />
+          <LanguageToggleButton />
 
           {user ? (
             <LogoutButton className="hidden md:inline-flex" />
@@ -142,7 +160,7 @@ export function Navbar() {
               href="/login"
               className="hidden rounded-xl bg-[#0b4f9f] px-3 py-2 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#0e62c4] md:inline-flex"
             >
-              Sign In
+              {t("navigation.signIn")}
             </Link>
           )}
 
@@ -152,7 +170,7 @@ export function Navbar() {
             onClick={() => setIsMenuOpen((current) => !current)}
             className="rounded-xl border border-blue-100 bg-white px-3 py-2 text-sm font-semibold text-[#0a3f82] shadow-sm transition hover:border-blue-200 md:hidden"
           >
-            Menu
+            {t("common.menu")}
           </button>
         </div>
       </div>
@@ -176,7 +194,7 @@ export function Navbar() {
           <div className="space-y-2">
             {user ? (
               <div className="mb-2 rounded-xl border border-blue-100 bg-[#f3f8ff] p-3">
-                <p className="text-sm font-semibold text-[#0a3f82]">{user.name ?? "Signed in user"}</p>
+                <p className="text-sm font-semibold text-[#0a3f82]">{user.name ?? t("common.signedInUser")}</p>
                 <p className="text-xs text-slate-600">{user.email ?? ""}</p>
               </div>
             ) : null}
@@ -198,7 +216,7 @@ export function Navbar() {
             })}
 
             <div className="rounded-xl border border-blue-100 bg-[#f3f8ff] p-3">
-              <p className="mb-2 text-xs font-bold uppercase tracking-[0.12em] text-[#0a3f82]">Browse categories</p>
+              <p className="mb-2 text-xs font-bold uppercase tracking-[0.12em] text-[#0a3f82]">{t("navbar.browseCategories")}</p>
               <div className="grid grid-cols-2 gap-2">
                 {categories.map((category) => (
                   <Link
@@ -219,7 +237,7 @@ export function Navbar() {
                 href="/login"
                 className="block rounded-lg bg-[#0b4f9f] px-3 py-2 text-center text-sm font-semibold text-white transition hover:bg-[#0e62c4]"
               >
-                Sign In
+                {t("navigation.signIn")}
               </Link>
             )}
           </div>

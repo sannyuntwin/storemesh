@@ -3,6 +3,7 @@
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/Button";
 
 interface CredentialsSignInFormProps {
@@ -10,6 +11,7 @@ interface CredentialsSignInFormProps {
 }
 
 export function CredentialsSignInForm({ callbackUrl = "/seller/dashboard" }: CredentialsSignInFormProps) {
+  const t = useTranslations();
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -29,7 +31,7 @@ export function CredentialsSignInForm({ callbackUrl = "/seller/dashboard" }: Cre
     });
 
     if (!result || result.error) {
-      setErrorMessage("Invalid email or password.");
+      setErrorMessage(t("auth.invalidCredentials"));
       setIsSubmitting(false);
       return;
     }
@@ -42,7 +44,7 @@ export function CredentialsSignInForm({ callbackUrl = "/seller/dashboard" }: Cre
     <form className="space-y-4" onSubmit={handleSubmit}>
       <div className="space-y-1">
         <label htmlFor="email" className="text-sm font-medium text-slate-700">
-          Email
+          {t("auth.email")}
         </label>
         <input
           id="email"
@@ -53,16 +55,16 @@ export function CredentialsSignInForm({ callbackUrl = "/seller/dashboard" }: Cre
           className="w-full rounded-md border border-[#d7e3f3] bg-[#eef4fb] px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-[#0b4f9f] focus:bg-white focus:ring-2 focus:ring-[#0b4f9f]/15"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
-          placeholder="test@gmail.com"
+          placeholder={t("auth.emailPlaceholder")}
         />
       </div>
 
       <div className="space-y-1">
         <div className="flex items-center justify-between">
           <label htmlFor="password" className="text-sm font-medium text-slate-700">
-            Password
+            {t("auth.password")}
           </label>
-          <span className="text-xs text-slate-400">Forgot password?</span>
+          <span className="text-xs text-slate-400">{t("auth.forgotPassword")}</span>
         </div>
         <input
           id="password"
@@ -73,7 +75,7 @@ export function CredentialsSignInForm({ callbackUrl = "/seller/dashboard" }: Cre
           className="w-full rounded-md border border-[#d7e3f3] bg-[#eef4fb] px-3 py-2 text-sm text-slate-800 outline-none transition focus:border-[#0b4f9f] focus:bg-white focus:ring-2 focus:ring-[#0b4f9f]/15"
           value={password}
           onChange={(event) => setPassword(event.target.value)}
-          placeholder="************"
+          placeholder={t("auth.passwordPlaceholder")}
         />
       </div>
 
@@ -85,7 +87,7 @@ export function CredentialsSignInForm({ callbackUrl = "/seller/dashboard" }: Cre
           className="h-10 min-w-[148px] rounded-full bg-[#0b4f9f] px-6 text-xs tracking-[0.08em] text-white hover:bg-[#0e62c4]"
           loading={isSubmitting}
         >
-          {isSubmitting ? "SIGNING IN..." : "SIGN IN  →"}
+          {isSubmitting ? t("auth.signingIn") : `${t("navigation.signIn")}  →`}
         </Button>
       </div>
     </form>

@@ -1,0 +1,306 @@
+{
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "success": "Success",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "add": "Add",
+    "search": "Search",
+    "close": "Close",
+    "back": "Back",
+    "next": "Next",
+    "previous": "Previous",
+    "menu": "Menu",
+    "home": "Home",
+    "about": "About",
+    "contact": "Contact",
+    "language": "Language",
+    "demo": "Demo",
+    "controls": "Controls",
+    "actions": "Actions",
+    "status": "Status",
+    "userAvatar": "User avatar",
+    "signedIn": "Signed in",
+    "signedInUser": "Signed in user"
+  },
+  "navbar": {
+    "announcement": "Free shipping over ฿50 · Same-day dispatch for paid orders",
+    "browseCategories": "Browse categories"
+  },
+  "navigation": {
+    "shop": "Shop",
+    "cart": "Cart",
+    "seller": "Seller",
+    "sellerPortal": "Seller Portal",
+    "signIn": "Sign In",
+    "signOut": "Sign Out",
+    "dashboard": "Dashboard",
+    "products": "Products",
+    "orders": "Orders",
+    "shipping": "Shipping",
+    "payments": "Payments",
+    "settings": "Settings",
+    "title": "Navigation",
+    "shopDescription": "Browse and purchase products",
+    "cartDescription": "View and manage your shopping cart"
+  },
+  "search": {
+    "placeholder": "Search products, brands, categories...",
+    "button": "Search",
+    "noResults": "No products found",
+    "results": "Results"
+  },
+  "auth": {
+    "welcomeBack": "Welcome back",
+    "signInToAccount": "Sign in to your account",
+    "email": "Email",
+    "password": "Password",
+    "rememberMe": "Remember me",
+    "forgotPassword": "Forgot password?",
+    "dontHaveAccount": "Don't have an account?",
+    "signUp": "Sign up",
+    "signInWithGoogle": "Sign in with Google",
+    "createAccount": "Create account",
+    "alreadyHaveAccount": "Already have an account?",
+    "signOut": "Sign Out",
+    "title": "Authentication",
+    "welcome": "Welcome",
+    "emailPlaceholder": "Enter your email",
+    "passwordPlaceholder": "Enter your password",
+    "invalidCredentials": "Invalid email or password.",
+    "signingIn": "Signing in...",
+    "loginPage": {
+      "title": "Welcome back",
+      "description": "Sign in to manage products, update stock, process shipments, and track orders in real time.",
+      "or": "or",
+      "demoCredentials": "Demo credentials:",
+      "storefront": "Storefront",
+      "liveCampaignPerformance": "Live campaign performance",
+      "growthThisWeek": "+12.4% this week",
+      "trendingProducts": "Trending products",
+      "updated": "Updated",
+      "commerceTrustSignals": "Commerce trust signals",
+      "shipping": "Shipping",
+      "shippingSupport": "Same-day dispatch support",
+      "payments": "Payments",
+      "paymentsSupport": "Secure order settlements",
+      "trustDescription": "Build confidence with faster fulfillment, reliable stock visibility, and clear payment records."
+    }
+  },
+  "product": {
+    "title": "Product",
+    "price": "Price",
+    "quantity": "Quantity",
+    "description": "Description",
+    "addToCart": "Add to Cart",
+    "outOfStock": "Out of Stock",
+    "inStock": "In Stock",
+    "lowStock": "Low Stock",
+    "productDetails": "Product Details",
+    "reviews": "Reviews",
+    "relatedProducts": "Related Products",
+    "categories": {
+      "all": "All Products",
+      "new": "New Arrivals",
+      "electronics": "Electronics",
+      "fashion": "Fashion",
+      "home": "Home Living"
+    }
+  },
+  "cart": {
+    "title": "Shopping Cart",
+    "empty": "Your cart is empty",
+    "item": "Item",
+    "items": "Items",
+    "subtotal": "Subtotal",
+    "shipping": "Shipping",
+    "tax": "Tax",
+    "total": "Total",
+    "checkout": "Checkout",
+    "continueShopping": "Continue Shopping",
+    "remove": "Remove",
+    "update": "Update",
+    "quantity": "Quantity"
+  },
+  "seller": {
+    "dashboard": {
+      "title": "Seller Dashboard",
+      "welcome": "Welcome to Seller Panel",
+      "overview": "Overview",
+      "stats": {
+        "revenue": "Revenue",
+        "orders": "Orders",
+        "returns": "Returns"
+      }
+    },
+    "products": {
+      "title": "Seller Products",
+      "addProduct": "Add Product",
+      "manageProducts": "Manage your product listings and update stock in one place.",
+      "total": "total",
+      "lowStock": "low stock",
+      "outOfStock": "out of stock",
+      "allInventory": "All inventory",
+      "lowStockOnly": "Low stock only",
+      "outOfStockOnly": "Out of stock only",
+      "sortBy": "Sort",
+      "sortByQtyHigh": "Sort: Qty high to low",
+      "sortByQtyLow": "Sort: Qty low to high",
+      "sortByPriceHigh": "Sort: Price high to low",
+      "sortByPriceLow": "Sort: Price low to high",
+      "sortByTitle": "Sort: Title A-Z",
+      "noProducts": "No products match this filter.",
+      "addStock": "Add Stock",
+      "status": "Status",
+      "healthy": "Healthy",
+      "product": "Product"
+    },
+    "addProduct": {
+      "title": "Add Product",
+      "description": "Fill only the required product information.",
+      "productTitle": "Product Title",
+      "unitPrice": "Unit Price",
+      "inventoryQuantity": "Inventory Quantity",
+      "image": "Image",
+      "productDescription": "Product Description",
+      "uploadImage": "Upload Image",
+      "createProduct": "Create Product",
+      "saving": "Saving...",
+      "pleaseUploadImage": "Please upload a product image.",
+      "imageUploaded": "Image uploaded successfully.",
+      "productCreated": "Product created successfully.",
+      "productSaved": "Product saved successfully. Redirecting...",
+      "couldNotSave": "Could not save product. Please try again.",
+      "couldNotUpload": "Could not upload image. Please try again.",
+      "supportedFormats": "JPG, PNG, WEBP (max 5MB)"
+    },
+    "payments": {
+      "recordPayment": {
+        "title": "Record Payment",
+        "orderId": "Order ID",
+        "amount": "Amount",
+        "paymentMethod": "Payment Method",
+        "recording": "Recording...",
+        "recordPayment": "Record Payment",
+        "methods": {
+          "CREDIT_CARD": "Credit Card",
+          "DEBIT_CARD": "Debit Card",
+          "BANK_TRANSFER": "Bank Transfer",
+          "CASH_ON_DELIVERY": "Cash on Delivery",
+          "EWALLET": "E-Wallet"
+        }
+      }
+    }
+  },
+  "theme": {
+    "toggle": "Toggle Theme",
+    "light": "Light",
+    "dark": "Dark",
+    "system": "System",
+    "controls": "Theme Controls"
+  },
+  "errors": {
+    "general": "Something went wrong. Please try again.",
+    "network": "Network error. Please check your connection.",
+    "notFound": "Page not found.",
+    "unauthorized": "You are not authorized to view this page.",
+    "serverError": "Server error. Please try again later."
+  },
+  "footer": {
+    "description": "Marketplace essentials for product listing, inventory control, and reliable order fulfillment.",
+    "tagline": "Secure payments · Fast shipping · Seller tools",
+    "copyright": "© {year} Storemesh. All rights reserved.",
+    "builtFor": "Built for modern ecommerce operations and seamless buyer-seller workflows.",
+    "sections": {
+      "customerCare": "Customer Care",
+      "shop": "Shop",
+      "seller": "Seller",
+      "legal": "Legal"
+    },
+    "links": {
+      "helpCenter": "Help Center",
+      "shippingInfo": "Shipping Info",
+      "returnsAndRefunds": "Returns & Refunds",
+      "contactSupport": "Contact Support",
+      "sellerDashboard": "Seller Dashboard",
+      "stockManagement": "Stock Management",
+      "shipmentAndPayments": "Shipment & Payments",
+      "termsOfService": "Terms of Service",
+      "privacyPolicy": "Privacy Policy",
+      "cookiePolicy": "Cookie Policy"
+    }
+  },
+  "seller": {
+    "dashboard": {
+      "title": "Seller Dashboard",
+      "welcome": "Welcome to Seller Panel",
+      "overview": "Overview",
+      "stats": {
+        "revenue": "Revenue",
+        "orders": "Orders",
+        "returns": "Returns"
+      }
+    },
+    "products": {
+      "title": "Seller Products",
+      "addProduct": "Add Product",
+      "manageProducts": "Manage your product listings and update stock in one place.",
+      "total": "total",
+      "lowStock": "low stock",
+      "outOfStock": "out of stock",
+      "allInventory": "All inventory",
+      "lowStockOnly": "Low stock only",
+      "outOfStockOnly": "Out of stock only",
+      "sortBy": "Sort",
+      "sortByQtyHigh": "Sort: Qty high to low",
+      "sortByQtyLow": "Sort: Qty low to high",
+      "sortByPriceHigh": "Sort: Price high to low",
+      "sortByPriceLow": "Sort: Price low to high",
+      "sortByTitle": "Sort: Title A-Z",
+      "noProducts": "No products match this filter.",
+      "addStock": "Add Stock",
+      "status": "Status",
+      "healthy": "Healthy",
+      "product": "Product"
+    },
+    "addProduct": {
+      "title": "Add Product",
+      "description": "Fill only the required product information.",
+      "productTitle": "Product Title",
+      "unitPrice": "Unit Price",
+      "inventoryQuantity": "Inventory Quantity",
+      "image": "Image",
+      "productDescription": "Product Description",
+      "uploadImage": "Upload Image",
+      "createProduct": "Create Product",
+      "saving": "Saving...",
+      "pleaseUploadImage": "Please upload a product image.",
+      "imageUploaded": "Image uploaded successfully.",
+      "productCreated": "Product created successfully.",
+      "productSaved": "Product saved successfully. Redirecting...",
+      "couldNotSave": "Could not save product. Please try again.",
+      "couldNotUpload": "Could not upload image. Please try again.",
+      "supportedFormats": "JPG, PNG, WEBP (max 5MB)"
+    },
+    "payments": {
+      "recordPayment": {
+        "title": "Record Payment",
+        "orderId": "Order ID",
+        "amount": "Amount",
+        "paymentMethod": "Payment Method",
+        "recording": "Recording...",
+        "recordPayment": "Record Payment",
+        "methods": {
+          "CREDIT_CARD": "Credit Card",
+          "DEBIT_CARD": "Debit Card",
+          "BANK_TRANSFER": "Bank Transfer",
+          "CASH_ON_DELIVERY": "Cash on Delivery",
+          "EWALLET": "E-Wallet"
+        }
+      }
+    }
+  }
+}

@@ -1,5 +1,8 @@
 # Storemesh Developer Assessment Submission
 
+## Live Demo
+[Open Frontend Live Demo](https://YOUR-VERCEL-URL.vercel.app)
+
 ## Project Overview
 Storemesh is a full-stack e-commerce assessment project that demonstrates buyer registration, product management, stock control, ordering, payment recording, and shipping workflows.
 

@@ -5,15 +5,21 @@ import { ErrorState } from "@/components/ErrorState";
 import { SellerProductsStockTable } from "@/components/SellerProductsStockTable";
 import { Sidebar } from "@/components/Sidebar";
 import { api } from "@/services/api";
+import { isDemoModeEnabled } from "@/services/fetcher";
+import { getTranslations } from 'next-intl/server';
 
 export const metadata: Metadata = {
   title: "Seller Products"
 };
 
 export default async function SellerProductsPage() {
-  const session = await auth();
+  const [session, demoModeEnabled, t] = await Promise.all([
+    auth(), 
+    isDemoModeEnabled(),
+    getTranslations('seller.products')
+  ]);
 
-  if (!session?.user) {
+  if (!session?.user && !demoModeEnabled) {
     redirect("/login?callbackUrl=/seller/products");
   }
 
@@ -28,13 +34,13 @@ export default async function SellerProductsPage() {
         <section className="space-y-4">
           {productsResult.usedFallback ? (
             <section className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-              Products are showing fallback demo data while backend services are unavailable.
+              โหมดทดสอบสาธิตกำลังทำงาน สินค้าผู้ขายกำลังใช้ข้อมูลจำลอง
             </section>
           ) : null}
 
           <article className="surface-card p-6">
-            <h1 className="text-2xl font-black text-slate-900 md:text-3xl">Seller Products</h1>
-            <p className="mt-1 text-sm text-slate-600">Manage your product listings and update stock in one place.</p>
+            <h1 className="text-2xl font-black text-slate-900 md:text-3xl">{t("title")}</h1>
+            <p className="mt-1 text-sm text-slate-600">{t("manageProducts")}</p>
           </article>
 
           <div id="inventory" className="scroll-mt-28">

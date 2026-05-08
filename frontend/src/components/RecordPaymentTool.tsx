@@ -5,6 +5,7 @@ import { Button } from "@/components/Button";
 import { useToast } from "@/components/ToastProvider";
 import { api } from "@/services/api";
 import { getErrorMessage } from "@/utils/errorMessage";
+import { useTranslations } from "next-intl";
 
 const paymentMethods = [
   "CREDIT_CARD",
@@ -16,6 +17,7 @@ const paymentMethods = [
 
 export function RecordPaymentTool() {
   const { pushToast } = useToast();
+  const t = useTranslations('seller.payments.recordPayment');
   const [orderId, setOrderId] = useState("");
   const [amount, setAmount] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<(typeof paymentMethods)[number]>("CREDIT_CARD");
@@ -32,14 +34,14 @@ export function RecordPaymentTool() {
     const parsedAmount = Number(amount);
 
     if (!Number.isInteger(parsedOrderId) || parsedOrderId <= 0) {
-      const message = "Order ID must be a positive integer.";
+      const message = t("errors.invalidOrderId");
       setErrorMessage(message);
       pushToast(message, "error");
       return;
     }
 
     if (!Number.isFinite(parsedAmount) || parsedAmount <= 0) {
-      const message = "Amount must be greater than zero.";
+      const message = t("errors.invalidAmount");
       setErrorMessage(message);
       pushToast(message, "error");
       return;
@@ -54,12 +56,12 @@ export function RecordPaymentTool() {
         paymentMethod
       });
 
-      const message = `Payment recorded for order #${payment.saleOrderId}.`;
+      const message = `${t("paymentRecorded")}${payment.saleOrderId}.`;
       setSuccessMessage(message);
       pushToast(message, "success");
       setAmount("");
     } catch (error) {
-      const message = getErrorMessage(error, "Could not record payment. Please try again.");
+      const message = getErrorMessage(error, t("errors.recordError"));
       setErrorMessage(message);
       pushToast(message, "error");
     } finally {
@@ -69,14 +71,14 @@ export function RecordPaymentTool() {
 
   return (
     <section className="surface-card p-4">
-      <h2 className="text-lg font-bold text-slate-900">Record Payment</h2>
+      <h2 className="text-lg font-bold text-slate-900">{t("title")}</h2>
       <p className="mt-1 text-sm text-slate-600">
-        Record payment received from a buyer for a specific sale order.
+        {t("description")}
       </p>
 
       <form className="mt-4 grid gap-3 sm:grid-cols-3" onSubmit={handleSubmit}>
         <label className="space-y-1">
-          <span className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Order ID</span>
+          <span className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">{t("orderId")}</span>
           <input
             required
             min={1}
@@ -89,7 +91,7 @@ export function RecordPaymentTool() {
         </label>
 
         <label className="space-y-1">
-          <span className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Amount</span>
+          <span className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">{t("amount")}</span>
           <input
             required
             min={0.01}
@@ -103,23 +105,25 @@ export function RecordPaymentTool() {
         </label>
 
         <label className="space-y-1">
-          <span className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Payment Method</span>
+          <span className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">{t("paymentMethod")}</span>
           <select
             className="form-input"
             value={paymentMethod}
             onChange={(event) => setPaymentMethod(event.target.value as (typeof paymentMethods)[number])}
           >
-            {paymentMethods.map((method) => (
-              <option key={method} value={method}>
-                {method}
-              </option>
-            ))}
+            {paymentMethods.map((method) => {
+              return (
+                <option key={method} value={method}>
+                  {t(`methods.${method}`)}
+                </option>
+              );
+            })}
           </select>
         </label>
 
         <div className="sm:col-span-3">
           <Button type="submit" loading={isSubmitting}>
-            {isSubmitting ? "Recording..." : "Record Payment"}
+            {isSubmitting ? t("recording") : t("recordPayment")}
           </Button>
         </div>
       </form>

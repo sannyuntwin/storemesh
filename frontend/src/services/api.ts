@@ -12,7 +12,7 @@ import {
 import {
   ApiRequestError,
   fetchJson,
-  shouldAllowMockFallback,
+  isDemoModeEnabled,
   shouldUseRemoteApi
 } from "@/services/fetcher";
 
@@ -124,52 +124,63 @@ let localProducts: Product[] = [...mockProducts];
 
 const fallbackCartItems: CartLine[] = [
   { product: mockProducts[0], quantity: 1 },
-  { product: mockProducts[2], quantity: 2 }
+  { product: mockProducts[2], quantity: 1 }
 ];
 
-const useMockFallback = async <T>(task: () => Promise<T>): Promise<T> => {
+const useMockData = async <T>(task: () => Promise<T>): Promise<T> => {
   await wait(API_LATENCY_MS);
   return task();
 };
 
-const resolveWithFallback = async <T>(
+const resolveWithMode = async <T>(
   remoteTask: () => Promise<T>,
-  fallbackTask: () => Promise<T>
+  demoTask: () => Promise<T>
 ): Promise<ApiResult<T>> => {
-  const canUseRemote = shouldUseRemoteApi();
-
-  if (!canUseRemote) {
+  if (await isDemoModeEnabled()) {
     return {
-      data: await fallbackTask(),
+      data: await demoTask(),
       usedFallback: true
     };
   }
 
-  try {
-    return {
-      data: await remoteTask(),
-      usedFallback: false
-    };
-  } catch (error) {
-    if (!shouldAllowMockFallback()) {
-      throw error;
-    }
-
-    return {
-      data: await fallbackTask(),
-      usedFallback: true
-    };
+  if (!shouldUseRemoteApi()) {
+    throw new ApiRequestError("Backend API not configured. Set NEXT_PUBLIC_API_URL or click Live Demo mode.");
   }
+
+  return {
+    data: await remoteTask(),
+    usedFallback: false
+  };
+};
+
+const fileToDataUrl = async (file: File): Promise<string> => {
+  if (typeof window === "undefined") {
+    throw new ApiRequestError("Demo upload only works in browser context.");
+  }
+
+  return await new Promise<string>((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      if (typeof reader.result === "string") {
+        resolve(reader.result);
+        return;
+      }
+
+      reject(new ApiRequestError("Could not read selected image."));
+    };
+    reader.onerror = () => reject(new ApiRequestError("Could not read selected image."));
+    reader.readAsDataURL(file);
+  });
 };
 
 export const api = {
   async getProductsWithMeta(): Promise<ApiResult<Product[]>> {
-    return resolveWithFallback(
+    return resolveWithMode(
       async () => {
         const response = await fetchJson<ApiEnvelope<BackendProduct[]>>(endpoints.products);
         return response.data.map(toProduct);
       },
-      () => useMockFallback(async () => localProducts)
+      () => useMockData(async () => localProducts)
     );
   },
 
@@ -179,12 +190,12 @@ export const api = {
   },
 
   async getProductByIdWithMeta(id: string): Promise<ApiResult<Product | null>> {
-    return resolveWithFallback(
+    return resolveWithMode(
       async () => {
         const response = await fetchJson<ApiEnvelope<BackendProduct>>(endpoints.productById(id));
         return toProduct(response.data);
       },
-      () => useMockFallback(async () => localProducts.find((product) => product.id === id) ?? null)
+      () => useMockData(async () => localProducts.find((product) => product.id === id) ?? null)
     );
   },
 
@@ -199,7 +210,7 @@ export const api = {
   },
 
   async getCartWithMeta(): Promise<ApiResult<CartPayload>> {
-    return resolveWithFallback(
+    return resolveWithMode(
       async () => {
         const data = await fetchJson<ApiEnvelope<{ items: CartLine[] }>>(endpoints.cart);
         return {
@@ -208,7 +219,7 @@ export const api = {
         };
       },
       () =>
-        useMockFallback(async () => ({
+        useMockData(async () => ({
           items: fallbackCartItems,
           summary: calculateCartSummary(fallbackCartItems)
         }))
@@ -221,13 +232,13 @@ export const api = {
   },
 
   async getSellerStatsWithMeta(): Promise<ApiResult<SellerStat[]>> {
-    return resolveWithFallback(
+    return resolveWithMode(
       async () => {
         const response = await fetchJson<ApiEnvelope<SellerStat[]>>(endpoints.sellerStats);
         return response.data;
       },
       () =>
-        useMockFallback(async () => [
+        useMockData(async () => [
           { label: "Revenue", value: "฿42,350", trend: "+12.4%", trendDirection: "up" },
           { label: "Orders", value: "1,084", trend: "+8.7%", trendDirection: "up" },
           { label: "Returns", value: "1.1%", trend: "-0.3%", trendDirection: "down" }
@@ -236,7 +247,7 @@ export const api = {
   },
 
   async createProduct(input: ProductInput): Promise<Product> {
-    const result = await resolveWithFallback(
+    const result = await resolveWithMode(
       async () => {
         const payload = {
           sellerId: Number(input.sellerId),
@@ -255,7 +266,7 @@ export const api = {
         return toProduct(response.data);
       },
       () =>
-        useMockFallback(async () => {
+        useMockData(async () => {
           const created: Product = {
             id: String(Date.now()),
             ...input
@@ -269,7 +280,7 @@ export const api = {
   },
 
   async addStock(productId: string, quantityAdded: number): Promise<Product> {
-    const result = await resolveWithFallback(
+    const result = await resolveWithMode(
       async () => {
         const response = await fetchJson<ApiEnvelope<BackendProduct>>(endpoints.productStock(productId), {
           method: "POST",
@@ -281,7 +292,7 @@ export const api = {
         return toProduct(response.data);
       },
       () =>
-        useMockFallback(async () => {
+        useMockData(async () => {
           const target = localProducts.find((item) => item.id === productId);
           if (!target) {
             throw new ApiRequestError("Product not found");
@@ -301,12 +312,8 @@ export const api = {
   },
 
   async uploadProductImage(file: File): Promise<string> {
-    const result = await resolveWithFallback(
+    const result = await resolveWithMode(
       async () => {
-        if (!shouldUseRemoteApi()) {
-          throw new ApiRequestError("Missing NEXT_PUBLIC_API_URL");
-        }
-
         const formData = new FormData();
         formData.append("image", file);
 
@@ -321,16 +328,14 @@ export const api = {
 
         return response.data.imageUrl;
       },
-      async () => {
-        throw new ApiRequestError("Image upload requires backend API access");
-      }
+      () => useMockData(async () => fileToDataUrl(file))
     );
 
     return result.data;
   },
 
   async createOrder(input: CreateOrderInput): Promise<Order> {
-    const result = await resolveWithFallback(
+    const result = await resolveWithMode(
       async () => {
         const payload = {
           buyerId: Number(input.buyerId),
@@ -349,7 +354,7 @@ export const api = {
         return toOrder(response.data);
       },
       () =>
-        useMockFallback(async () => {
+        useMockData(async () => {
           const fallbackOrderId = String(Date.now());
           const createdAt = new Date().toISOString();
 
@@ -379,7 +384,7 @@ export const api = {
   },
 
   async createPayment(input: { saleOrderId: string; amount: number; paymentMethod: string; paymentDate?: string }) {
-    const result = await resolveWithFallback(
+    const result = await resolveWithMode(
       async () => {
         const payload = {
           saleOrderId: Number(input.saleOrderId),
@@ -410,7 +415,7 @@ export const api = {
         };
       },
       () =>
-        useMockFallback(async () => ({
+        useMockData(async () => ({
           id: String(Date.now()),
           saleOrderId: input.saleOrderId,
           amount: input.amount,
@@ -423,7 +428,7 @@ export const api = {
   },
 
   async createShippingLabel(input: { orderId: string; recipientAddress: string; trackingNo?: string }) {
-    const result = await resolveWithFallback(
+    const result = await resolveWithMode(
       async () => {
         const payload = {
           recipientAddress: input.recipientAddress,
@@ -452,7 +457,7 @@ export const api = {
         };
       },
       () =>
-        useMockFallback(async () => ({
+        useMockData(async () => ({
           id: String(Date.now()),
           saleOrderId: input.orderId,
           trackingNo: input.trackingNo?.trim() || `TRK-${Date.now()}`,

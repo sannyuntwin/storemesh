@@ -1,6 +1,7 @@
 "use client";
 
 import { signIn } from "next-auth/react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/Button";
 
 interface GoogleSignInButtonProps {
@@ -8,6 +9,8 @@ interface GoogleSignInButtonProps {
 }
 
 export function GoogleSignInButton({ callbackUrl = "/" }: GoogleSignInButtonProps) {
+  const t = useTranslations();
+
   return (
     <Button
       variant="ghost"
@@ -32,7 +35,7 @@ export function GoogleSignInButton({ callbackUrl = "/" }: GoogleSignInButtonProp
           d="M12 4.77c1.76 0 3.35.6 4.59 1.79l3.44-3.44C17.96 1.17 15.24 0 12 0A12 12 0 0 0 1.33 6.6l4.01 3.1A7.2 7.2 0 0 1 12 4.77z"
         />
       </svg>
-      Continue with Google
+      {t("auth.signInWithGoogle")}
     </Button>
   );
 }

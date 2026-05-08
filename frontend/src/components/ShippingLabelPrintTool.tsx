@@ -1,6 +1,7 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 
 const normalizeApiBase = (rawBase: string | undefined) => {
   if (!rawBase) {
@@ -11,6 +12,7 @@ const normalizeApiBase = (rawBase: string | undefined) => {
 };
 
 export function ShippingLabelPrintTool() {
+  const t = useTranslations('seller.shipping.printLabel');
   const [orderId, setOrderId] = useState("");
   const apiBase = useMemo(() => normalizeApiBase(process.env.NEXT_PUBLIC_API_URL), []);
   const isEnabled = apiBase.length > 0;
@@ -29,9 +31,9 @@ export function ShippingLabelPrintTool() {
 
   return (
     <section className="surface-card p-4">
-      <h2 className="text-lg font-bold text-slate-900">Shipping Label Print</h2>
+      <h2 className="text-lg font-bold text-slate-900">{t("title")}</h2>
       <p className="mt-1 text-sm text-slate-600">
-        Enter an order ID that already has a shipping label, then open a print-ready label page.
+        {t("description")}
       </p>
 
       <form onSubmit={handlePrint} className="mt-4 flex flex-col gap-3 sm:flex-row">
@@ -41,7 +43,7 @@ export function ShippingLabelPrintTool() {
           required
           value={orderId}
           onChange={(event) => setOrderId(event.target.value)}
-          placeholder="Order ID (e.g. 1)"
+          placeholder={t("orderIdPlaceholder")}
           className="form-input sm:max-w-xs"
         />
         <button
@@ -49,13 +51,13 @@ export function ShippingLabelPrintTool() {
           disabled={!isEnabled}
           className="rounded-xl bg-[#0b4f9f] px-4 py-2 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#0e62c4] disabled:cursor-not-allowed disabled:opacity-60"
         >
-          Open Printable Label
+          {t("openPrintableLabel")}
         </button>
       </form>
 
       {!isEnabled ? (
         <p className="mt-2 text-xs text-rose-700">
-          `NEXT_PUBLIC_API_URL` is not configured, so printing cannot be opened.
+          {t("apiNotConfigured")}
         </p>
       ) : null}
     </section>

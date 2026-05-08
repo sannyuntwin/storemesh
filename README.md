@@ -2,6 +2,10 @@
 
 Assessment-ready full-stack e-commerce project with a responsive frontend, REST backend, relational data model, and clear documentation.
 
+## Live Demo
+
+[Open Frontend Live Demo](https://YOUR-VERCEL-URL.vercel.app)
+
 ## Tech Stack
 
 - Frontend: Next.js 15, TypeScript, Tailwind CSS
@@ -276,7 +280,7 @@ curl -X POST http://localhost:5000/api/payments \
 
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:5000
-NEXT_PUBLIC_ENABLE_MOCK_FALLBACK=true
+NEXT_PUBLIC_DEMO_MODE=false
 AUTH_SECRET=replace_with_a_long_random_secret
 GOOGLE_CLIENT_ID=replace_with_google_client_id
 GOOGLE_CLIENT_SECRET=replace_with_google_client_secret
@@ -320,6 +324,7 @@ AUTH_DEMO_PASSWORD=storemesh123
 
 - [x] Frontend completed
 - [x] Backend completed
+- [ ] Live demo URL updated (`https://YOUR-VERCEL-URL.vercel.app`)
 - [x] ER diagram included
 - [x] API examples included
 - [x] Mock Google auth included

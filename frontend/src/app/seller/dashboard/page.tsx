@@ -5,7 +5,9 @@ import { ErrorState } from "@/components/ErrorState";
 import { SellerDashboardCharts } from "@/components/SellerDashboardCharts";
 import { Sidebar } from "@/components/Sidebar";
 import { api } from "@/services/api";
+import { isDemoModeEnabled } from "@/services/fetcher";
 import { formatThaiBahtNoDecimal } from "@/utils/formatCurrency";
+import { getTranslations } from 'next-intl/server';
 
 export const metadata: Metadata = {
   title: "Seller Dashboard"
@@ -18,9 +20,13 @@ const toNumber = (value: string): number => {
 };
 
 export default async function SellerDashboardPage() {
-  const session = await auth();
+  const [session, demoModeEnabled, t] = await Promise.all([
+    auth(), 
+    isDemoModeEnabled(),
+    getTranslations('seller.dashboard')
+  ]);
 
-  if (!session?.user) {
+  if (!session?.user && !demoModeEnabled) {
     redirect("/login?callbackUrl=/seller/dashboard");
   }
 
@@ -39,24 +45,24 @@ export default async function SellerDashboardPage() {
     const ordersStat = stats.find((item) => item.label === "Orders");
     const kpis = [
       {
-        label: "Revenue",
+        label: t("stats.revenue"),
         value: formatThaiBahtNoDecimal(revenue),
-        trend: revenueStat?.trend ?? "This month"
+        trend: revenueStat?.trend ?? t("overview")
       },
       {
-        label: "Orders",
+        label: t("stats.orders"),
         value: orders.toLocaleString(),
-        trend: ordersStat?.trend ?? "This month"
+        trend: ordersStat?.trend ?? t("overview")
       },
       {
-        label: "Low Stock",
+        label: t("stats.lowStock"),
         value: lowStockCount.toLocaleString(),
-        trend: outOfStockCount > 0 ? `${outOfStockCount} out of stock` : "No stockout"
+        trend: outOfStockCount > 0 ? `${outOfStockCount} ${t("stats.outOfStock")}` : t("stats.noStockout")
       },
       {
-        label: "Pending Shipment",
+        label: t("stats.pendingShipment"),
         value: pendingShipmentCount.toLocaleString(),
-        trend: "Needs fulfillment"
+        trend: t("stats.needsFulfillment")
       }
     ];
     return (
@@ -66,15 +72,15 @@ export default async function SellerDashboardPage() {
         <section className="space-y-6">
           {fallbackEnabled ? (
             <section className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-              Dashboard is showing fallback demo data while backend services are unavailable.
+              {t("demoModeActive")}
             </section>
           ) : null}
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div>
-              <h1 className="text-2xl font-black text-slate-900 md:text-3xl">Seller Dashboard</h1>
-              <p className="mt-1 text-sm text-slate-600">Simple overview of sales, stock, and operations.</p>
+              <h1 className="text-2xl font-black text-slate-900 md:text-3xl">{t("title")}</h1>
+              <p className="mt-1 text-sm text-slate-600">{t("welcome")}</p>
             </div>
-            <span className="rounded-lg border border-[#d7e3f3] bg-white px-3 py-2 text-xs font-semibold text-slate-600">This Month</span>
+            <span className="rounded-lg border border-[#d7e3f3] bg-white px-3 py-2 text-xs font-semibold text-slate-600">{t("overview")}</span>
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -90,18 +96,18 @@ export default async function SellerDashboardPage() {
           <div className="grid gap-4 xl:grid-cols-[1.7fr_1fr]">
             <SellerDashboardCharts stats={stats} products={products} />
             <article className="surface-card p-5">
-              <h2 className="text-base font-bold text-slate-900">Action Needed</h2>
+              <h2 className="text-base font-bold text-slate-900">{t("actionNeeded")}</h2>
               <div className="mt-3 space-y-2 text-sm">
                 <a href="/seller/products" className="flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2 hover:bg-slate-50">
-                  <span>◍ Low stock items</span>
+                  <span>◍ {t("lowStockItems")}</span>
                   <span className="font-semibold text-[#0b4f9f]">{lowStockCount}</span>
                 </a>
                 <a href="/seller/shipping" className="flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2 hover:bg-slate-50">
-                  <span>↗ Pending shipment</span>
+                  <span>↗ {t("pendingShipment")}</span>
                   <span className="font-semibold text-[#0b4f9f]">{pendingShipmentCount}</span>
                 </a>
                 <a href="/seller/payments" className="flex items-center justify-between rounded-lg border border-slate-200 px-3 py-2 hover:bg-slate-50">
-                  <span>฿ Payment updates</span>
+                  <span>฿ {t("paymentUpdates")}</span>
                   <span className="font-semibold text-[#0b4f9f]">{Math.max(1, Math.round(orders * 0.2))}</span>
                 </a>
               </div>
@@ -113,9 +119,9 @@ export default async function SellerDashboardPage() {
   } catch {
     return (
       <ErrorState
-        title="Unable to load dashboard"
-        description="We could not fetch seller analytics at the moment."
-        actionLabel="Go to shop"
+        title={"Unable to load dashboard"}
+        description={"We could not fetch seller analytics at the moment."}
+        actionLabel={"Go to shop"}
         actionHref="/"
       />
     );

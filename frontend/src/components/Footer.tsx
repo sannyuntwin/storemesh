@@ -1,45 +1,46 @@
 import Link from "next/link";
+import { getTranslations } from "next-intl/server";
 
-const sections = [
-  {
-    title: "Customer Care",
-    links: [
-      { href: "/?category=all", label: "Help Center" },
-      { href: "/?category=all", label: "Shipping Info" },
-      { href: "/?category=all", label: "Returns & Refunds" },
-      { href: "/?category=all", label: "Contact Support" }
-    ]
-  },
-  {
-    title: "Shop",
-    links: [
-      { href: "/?category=new", label: "New Arrivals" },
-      { href: "/?category=electronics", label: "Electronics" },
-      { href: "/?category=fashion", label: "Fashion" },
-      { href: "/?category=home", label: "Home Living" }
-    ]
-  },
-  {
-    title: "Seller",
-    links: [
-      { href: "/seller/dashboard", label: "Seller Dashboard" },
-      { href: "/seller/add-product", label: "Add Product" },
-      { href: "/seller/dashboard", label: "Stock Management" },
-      { href: "/seller/dashboard", label: "Shipment & Payments" }
-    ]
-  },
-  {
-    title: "Legal",
-    links: [
-      { href: "/?category=all", label: "Terms of Service" },
-      { href: "/?category=all", label: "Privacy Policy" },
-      { href: "/?category=all", label: "Cookie Policy" }
-    ]
-  }
-];
-
-export function Footer() {
+export async function Footer() {
+  const t = await getTranslations();
   const year = new Date().getFullYear();
+  const sections = [
+    {
+      title: t("footer.sections.customerCare"),
+      links: [
+        { href: "/?category=all", label: t("footer.links.helpCenter") },
+        { href: "/?category=all", label: t("footer.links.shippingInfo") },
+        { href: "/?category=all", label: t("footer.links.returnsAndRefunds") },
+        { href: "/?category=all", label: t("footer.links.contactSupport") }
+      ]
+    },
+    {
+      title: t("footer.sections.shop"),
+      links: [
+        { href: "/?category=new", label: t("product.categories.new") },
+        { href: "/?category=electronics", label: t("product.categories.electronics") },
+        { href: "/?category=fashion", label: t("product.categories.fashion") },
+        { href: "/?category=home", label: t("product.categories.home") }
+      ]
+    },
+    {
+      title: t("footer.sections.seller"),
+      links: [
+        { href: "/seller/dashboard", label: t("footer.links.sellerDashboard") },
+        { href: "/seller/add-product", label: t("seller.products.addProduct") },
+        { href: "/seller/dashboard", label: t("footer.links.stockManagement") },
+        { href: "/seller/dashboard", label: t("footer.links.shipmentAndPayments") }
+      ]
+    },
+    {
+      title: t("footer.sections.legal"),
+      links: [
+        { href: "/?category=all", label: t("footer.links.termsOfService") },
+        { href: "/?category=all", label: t("footer.links.privacyPolicy") },
+        { href: "/?category=all", label: t("footer.links.cookiePolicy") }
+      ]
+    }
+  ];
 
   return (
     <footer className="mt-10 border-t border-[#dbe7f6] bg-[#eef4fb]">
@@ -53,9 +54,9 @@ export function Footer() {
               <span className="text-lg font-black tracking-tight text-[#0a3f82]">Storemesh</span>
             </div>
             <p className="text-sm leading-6 text-slate-600">
-              Marketplace essentials for product listing, inventory control, and reliable order fulfillment.
+              {t("footer.description")}
             </p>
-            <p className="text-xs font-semibold text-[#0a3f82]">Secure payments · Fast shipping · Seller tools</p>
+            <p className="text-xs font-semibold text-[#0a3f82]">{t("footer.tagline")}</p>
           </article>
 
           {sections.map((section) => (
@@ -73,8 +74,8 @@ export function Footer() {
         </div>
 
         <div className="mt-8 border-t border-[#d7e3f3] pt-4 text-xs text-slate-500 sm:flex sm:items-center sm:justify-between">
-          <p>© {year} Storemesh. All rights reserved.</p>
-          <p>Built for modern ecommerce operations and seamless buyer-seller workflows.</p>
+          <p>{t("footer.copyright", { year })}</p>
+          <p>{t("footer.builtFor")}</p>
         </div>
       </div>
     </footer>

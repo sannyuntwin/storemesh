@@ -33,6 +33,13 @@ h4 {
     #f3f4f6;
 }
 
+.dark .bg-app {
+  background:
+    radial-gradient(circle at 0% 0%, rgba(30, 41, 59, 0.52), transparent 35%),
+    radial-gradient(circle at 100% 0%, rgba(51, 65, 85, 0.25), transparent 30%),
+    #0f172a;
+}
+
 @keyframes toast-in {
   from {
     opacity: 0;
@@ -63,11 +70,21 @@ h4 {
     box-shadow: 0 8px 28px -22px rgba(15, 23, 42, 0.35);
   }
 
+  .dark .surface-card {
+    background: rgba(30, 41, 59, 0.98);
+    box-shadow: 0 8px 28px -22px rgba(0, 0, 0, 0.35);
+  }
+
   .surface-panel {
     border: 1px solid var(--surface-border);
     border-radius: 1rem;
     background: rgba(255, 255, 255, 0.98);
     box-shadow: 0 4px 20px -18px rgba(15, 23, 42, 0.32);
+  }
+
+  .dark .surface-panel {
+    background: rgba(30, 41, 59, 0.98);
+    box-shadow: 0 4px 20px -18px rgba(0, 0, 0, 0.32);
   }
 
   .form-input {
@@ -81,8 +98,19 @@ h4 {
     transition: border-color 160ms ease, box-shadow 160ms ease;
   }
 
+  .dark .form-input {
+    background: #1e293b;
+    border-color: rgba(11, 79, 159, 0.4);
+    color: #f1f5f9;
+  }
+
   .form-input:focus {
     border-color: rgba(11, 79, 159, 0.55);
     box-shadow: 0 0 0 3px rgba(11, 79, 159, 0.14);
+  }
+
+  .dark .form-input:focus {
+    border-color: rgba(11, 79, 159, 0.7);
+    box-shadow: 0 0 0 3px rgba(11, 79, 159, 0.2);
   }
 }

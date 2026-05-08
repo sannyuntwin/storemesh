@@ -5,9 +5,11 @@ import { Button } from "@/components/Button";
 import { useToast } from "@/components/ToastProvider";
 import { api } from "@/services/api";
 import { getErrorMessage } from "@/utils/errorMessage";
+import { useTranslations } from "next-intl";
 
 export function CreateShipmentTool() {
   const { pushToast } = useToast();
+  const t = useTranslations('seller.shipping.createShipment');
   const [orderId, setOrderId] = useState("");
   const [recipientAddress, setRecipientAddress] = useState("");
   const [trackingNo, setTrackingNo] = useState("");
@@ -22,14 +24,14 @@ export function CreateShipmentTool() {
 
     const parsedOrderId = Number(orderId);
     if (!Number.isInteger(parsedOrderId) || parsedOrderId <= 0) {
-      const message = "Order ID must be a positive integer.";
+      const message = t("errors.invalidOrderId");
       setErrorMessage(message);
       pushToast(message, "error");
       return;
     }
 
     if (recipientAddress.trim().length === 0) {
-      const message = "Recipient address is required.";
+      const message = t("errors.addressRequired");
       setErrorMessage(message);
       pushToast(message, "error");
       return;
@@ -44,12 +46,12 @@ export function CreateShipmentTool() {
         trackingNo: trackingNo.trim() || undefined
       });
 
-      const message = `Shipment created for order #${label.saleOrderId} (Tracking: ${label.trackingNo}).`;
+      const message = `${t("shipmentCreated")}${label.saleOrderId}${t("trackingInfo")}${label.trackingNo}).`;
       setSuccessMessage(message);
-      pushToast("Shipment created and inventory updated.", "success");
+      pushToast(t("success"), "success");
       setTrackingNo("");
     } catch (error) {
-      const message = getErrorMessage(error, "Could not create shipment. Please try again.");
+      const message = getErrorMessage(error, t("errors.createError"));
       setErrorMessage(message);
       pushToast(message, "error");
     } finally {
@@ -59,14 +61,14 @@ export function CreateShipmentTool() {
 
   return (
     <section className="surface-card p-4">
-      <h2 className="text-lg font-bold text-slate-900">Create Shipment</h2>
+      <h2 className="text-lg font-bold text-slate-900">{t("title")}</h2>
       <p className="mt-1 text-sm text-slate-600">
-        Generate shipping label data for an order. This shipment step reduces inventory quantities in backend.
+        {t("description")}
       </p>
 
       <form className="mt-4 grid gap-3 sm:grid-cols-3" onSubmit={handleSubmit}>
         <label className="space-y-1">
-          <span className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Order ID</span>
+          <span className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">{t("orderId")}</span>
           <input
             required
             min={1}
@@ -79,7 +81,7 @@ export function CreateShipmentTool() {
         </label>
 
         <label className="space-y-1">
-          <span className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Tracking No (optional)</span>
+          <span className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">{t("trackingNo")}</span>
           <input
             type="text"
             className="form-input"
@@ -90,7 +92,7 @@ export function CreateShipmentTool() {
         </label>
 
         <label className="space-y-1 sm:col-span-3">
-          <span className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">Recipient Address</span>
+          <span className="text-xs font-semibold uppercase tracking-[0.12em] text-slate-500">{t("recipientAddress")}</span>
           <textarea
             required
             rows={3}
@@ -103,7 +105,7 @@ export function CreateShipmentTool() {
 
         <div className="sm:col-span-3">
           <Button type="submit" loading={isSubmitting}>
-            {isSubmitting ? "Creating Shipment..." : "Create Shipment Label"}
+            {isSubmitting ? t("creating") : t("createLabel")}
           </Button>
         </div>
       </form>

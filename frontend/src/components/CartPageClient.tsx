@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { CartItem } from "@/components/CartItem";
 import { CartSummary } from "@/components/CartSummary";
 import { EmptyState } from "@/components/EmptyState";
@@ -11,6 +11,7 @@ import { api } from "@/services/api";
 import { Button } from "@/components/Button";
 import { getErrorMessage } from "@/utils/errorMessage";
 import { useToast } from "@/components/ToastProvider";
+import { useTranslations } from "next-intl";
 
 interface CartPageClientProps {
   initialItems: CartLine[];
@@ -20,13 +21,16 @@ interface CartPageClientProps {
 export function CartPageClient({ initialItems, usedFallback = false }: CartPageClientProps) {
   const { items, updateQuantity, removeItem, hydrateFromServer, summary, isHydrated, clearCart } = useCart();
   const { pushToast } = useToast();
+  const t = useTranslations('cart');
   const [isSubmittingOrder, setIsSubmittingOrder] = useState(false);
   const [orderSuccessMessage, setOrderSuccessMessage] = useState("");
   const [orderErrorMessage, setOrderErrorMessage] = useState("");
+  const hasHydrated = useRef(false);
 
   useEffect(() => {
-    if (isHydrated) {
-      hydrateFromServer(initialItems);
+    if (isHydrated && !hasHydrated.current) {
+      hasHydrated.current = true;
+      hydrateFromServer(initialItems, { forceReplace: true });
     }
   }, [isHydrated, hydrateFromServer, initialItems]);
 
@@ -65,21 +69,21 @@ export function CartPageClient({ initialItems, usedFallback = false }: CartPageC
   return (
     <div className="grid gap-6 lg:grid-cols-[2fr_1fr]">
       <section className="space-y-4">
-        <h1 className="text-2xl font-black text-slate-900 md:text-3xl">Your Cart</h1>
+        <h1 className="text-2xl font-black text-slate-900 md:text-3xl">{t("title")}</h1>
         <div className="flex flex-wrap gap-2 text-xs">
           <span className="rounded-full border border-[#d9e4f3] bg-[#f3f8ff] px-3 py-1 font-semibold text-[#0a3f82]">
-            Secure checkout
+            {t("secureCheckout")}
           </span>
           <span className="rounded-full border border-[#d9e4f3] bg-[#f3f8ff] px-3 py-1 font-semibold text-[#0a3f82]">
-            Fast dispatch
+            {t("fastDispatch")}
           </span>
           <span className="rounded-full border border-[#d9e4f3] bg-[#f3f8ff] px-3 py-1 font-semibold text-[#0a3f82]">
-            Live stock validation
+            {t("liveStockValidation")}
           </span>
         </div>
         {usedFallback ? (
           <section className="rounded-2xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
-            Cart data is currently running in fallback mode.
+            {t("demoModeActive")}
           </section>
         ) : null}
 
@@ -88,9 +92,9 @@ export function CartPageClient({ initialItems, usedFallback = false }: CartPageC
 
         {items.length === 0 ? (
           <EmptyState
-            title="Your cart is empty"
-            description="Looks like you have not added anything yet. Discover products and add your first item."
-            actionLabel="Browse products"
+            title={t("emptyTitle")}
+            description={t("emptyDescription")}
+            actionLabel={t("browseProducts")}
             actionHref="/"
             emoji="🧺"
           />
@@ -110,9 +114,9 @@ export function CartPageClient({ initialItems, usedFallback = false }: CartPageC
       <div className="space-y-3">
         <CartSummary summary={summary} />
         <Button className="w-full" onClick={handlePlaceOrder} loading={isSubmittingOrder} disabled={items.length === 0}>
-          {isSubmittingOrder ? "Placing order..." : "Place order"}
+          {isSubmittingOrder ? t("placingOrder") : t("placeOrder")}
         </Button>
-        <p className="text-center text-xs text-slate-500">By placing an order, you agree to our shipping and return policy.</p>
+        <p className="text-center text-xs text-slate-500">{t("policyAgreement")}</p>
       </div>
     </div>
   );

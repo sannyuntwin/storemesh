@@ -1,4 +1,6 @@
 const DEFAULT_TIMEOUT_MS = 8000;
+export const DEMO_MODE_COOKIE_NAME = "storemesh_demo_mode";
+export const DEMO_MODE_COOKIE_VALUE = "mock";
 
 export class ApiRequestError extends Error {
   status?: number;
@@ -33,8 +35,30 @@ export const getApiBaseUrl = (): string => {
 
 export const shouldUseRemoteApi = (): boolean => getApiBaseUrl().length > 0;
 
-export const shouldAllowMockFallback = (): boolean => {
-  return process.env.NEXT_PUBLIC_ENABLE_MOCK_FALLBACK !== "false";
+const readCookieValue = (cookieString: string, name: string): string | null => {
+  const prefix = `${name}=`;
+  const parts = cookieString.split(";").map((part) => part.trim());
+  const cookie = parts.find((part) => part.startsWith(prefix));
+
+  if (!cookie) {
+    return null;
+  }
+
+  return decodeURIComponent(cookie.slice(prefix.length));
+};
+
+export const isDemoModeEnabled = async (): Promise<boolean> => {
+  if (typeof window !== "undefined") {
+    return readCookieValue(document.cookie, DEMO_MODE_COOKIE_NAME) === DEMO_MODE_COOKIE_VALUE;
+  }
+
+  try {
+    const { cookies } = await import("next/headers");
+    const cookieStore = await cookies();
+    return cookieStore.get(DEMO_MODE_COOKIE_NAME)?.value === DEMO_MODE_COOKIE_VALUE;
+  } catch {
+    return false;
+  }
 };
 
 const createUrl = (path: string): string => {

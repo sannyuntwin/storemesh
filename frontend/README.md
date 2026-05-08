@@ -40,7 +40,7 @@ Open `http://localhost:3000`.
 
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:5000
-NEXT_PUBLIC_ENABLE_MOCK_FALLBACK=true
+NEXT_PUBLIC_DEMO_MODE=false
 AUTH_SECRET=replace_with_a_long_random_secret
 GOOGLE_CLIENT_ID=replace_with_google_client_id
 GOOGLE_CLIENT_SECRET=replace_with_google_client_secret
@@ -49,7 +49,7 @@ AUTH_DEMO_PASSWORD=storemesh123
 ```
 
 - `NEXT_PUBLIC_API_URL`: backend base URL (frontend appends `/api`)
-- `NEXT_PUBLIC_ENABLE_MOCK_FALLBACK`: fallback to mock data when backend is unavailable
+- `NEXT_PUBLIC_DEMO_MODE`: set to 'true' for live demo mode with mock data, 'false' for normal mode with real API
 - `AUTH_SECRET`: Auth.js session secret
 - `GOOGLE_CLIENT_ID`: Google OAuth client id
 - `GOOGLE_CLIENT_SECRET`: Google OAuth client secret
@@ -78,4 +78,4 @@ AUTH_DEMO_PASSWORD=storemesh123
 - Build command: `npm run build`
 - Set env vars:
   - `NEXT_PUBLIC_API_URL=https://<your-backend-domain>`
-  - `NEXT_PUBLIC_ENABLE_MOCK_FALLBACK=false`
+  - `NEXT_PUBLIC_DEMO_MODE=false`

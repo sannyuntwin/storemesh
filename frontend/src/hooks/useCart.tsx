@@ -1,8 +1,10 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState } from "react";
+import { usePathname } from "next/navigation";
+import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
 import { CartLine, Product } from "@/types";
 import { calculateCartSummary } from "@/services/api";
+import { DEMO_MODE_COOKIE_NAME, DEMO_MODE_COOKIE_VALUE } from "@/services/fetcher";
 
 interface CartContextValue {
   items: CartLine[];
@@ -11,12 +13,13 @@ interface CartContextValue {
   removeItem: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   getProductQuantity: (productId: string) => number;
-  hydrateFromServer: (lines: CartLine[]) => void;
+  hydrateFromServer: (lines: CartLine[], options?: { forceReplace?: boolean }) => void;
   clearCart: () => void;
   isHydrated: boolean;
 }
 
-const CART_STORAGE_KEY = "storemesh_cart";
+const CART_STORAGE_KEY_LIVE = "storemesh_cart_live";
+const CART_STORAGE_KEY_DEMO = "storemesh_cart_demo";
 
 const CartContext = createContext<CartContextValue | null>(null);
 
@@ -73,13 +76,34 @@ const normalizeCartLines = (value: unknown): CartLine[] => {
     .filter((line): line is CartLine => line !== null);
 };
 
-const readStorage = (): CartLine[] => {
+const readCookieValue = (cookieString: string, name: string): string | null => {
+  const prefix = `${name}=`;
+  const parts = cookieString.split(";").map((part) => part.trim());
+  const cookie = parts.find((part) => part.startsWith(prefix));
+
+  if (!cookie) {
+    return null;
+  }
+
+  return decodeURIComponent(cookie.slice(prefix.length));
+};
+
+const getStorageKeyFromMode = (): string => {
+  if (typeof window === "undefined") {
+    return CART_STORAGE_KEY_LIVE;
+  }
+
+  const cookieValue = readCookieValue(document.cookie, DEMO_MODE_COOKIE_NAME);
+  return cookieValue === DEMO_MODE_COOKIE_VALUE ? CART_STORAGE_KEY_DEMO : CART_STORAGE_KEY_LIVE;
+};
+
+const readStorage = (storageKey: string): CartLine[] => {
   if (typeof window === "undefined") {
     return [];
   }
 
   try {
-    const stored = window.localStorage.getItem(CART_STORAGE_KEY);
+    const stored = window.localStorage.getItem(storageKey);
     if (!stored) {
       return [];
     }
@@ -92,24 +116,49 @@ const readStorage = (): CartLine[] => {
 };
 
 export function CartProvider({ children }: { children: React.ReactNode }) {
+  const pathname = usePathname();
   const [items, setItems] = useState<CartLine[]>([]);
+  const [activeStorageKey, setActiveStorageKey] = useState(CART_STORAGE_KEY_LIVE);
   const [isHydrated, setIsHydrated] = useState(false);
 
-  useEffect(() => {
-    const storedItems = readStorage();
-    setItems(storedItems);
-    setIsHydrated(true);
+  const syncStorageMode = useCallback((forceReload: boolean = false) => {
+    const nextStorageKey = getStorageKeyFromMode();
+
+    setActiveStorageKey((currentStorageKey) => {
+      const storageModeChanged = currentStorageKey !== nextStorageKey;
+      const switchingFromDemoToLive = currentStorageKey === CART_STORAGE_KEY_DEMO && nextStorageKey === CART_STORAGE_KEY_LIVE;
+
+      if (storageModeChanged || forceReload) {
+        if (switchingFromDemoToLive) {
+          // Clear cart when switching from demo to live mode
+          setItems([]);
+        } else {
+          setItems(readStorage(nextStorageKey));
+        }
+      }
+
+      return nextStorageKey;
+    });
   }, []);
+
+  useEffect(() => {
+    syncStorageMode(true);
+    setIsHydrated(true);
+  }, [syncStorageMode]);
+
+  useEffect(() => {
+    syncStorageMode(false);
+  }, [pathname, syncStorageMode]);
 
   useEffect(() => {
     if (!isHydrated || typeof window === "undefined") {
       return;
     }
 
-    window.localStorage.setItem(CART_STORAGE_KEY, JSON.stringify(items));
-  }, [isHydrated, items]);
+    window.localStorage.setItem(activeStorageKey, JSON.stringify(items));
+  }, [activeStorageKey, isHydrated, items]);
 
-  const addItem = (product: Product, quantity: number = 1) => {
+  const addItem = useCallback((product: Product, quantity: number = 1) => {
     setItems((current) => {
       const existingLine = current.find((line) => line.product.id === product.id);
 
@@ -126,13 +175,13 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           : line
       );
     });
-  };
+  }, []);
 
-  const removeItem = (productId: string) => {
+  const removeItem = useCallback((productId: string) => {
     setItems((current) => current.filter((line) => line.product.id !== productId));
-  };
+  }, []);
 
-  const updateQuantity = (productId: string, quantity: number) => {
+  const updateQuantity = useCallback((productId: string, quantity: number) => {
     if (quantity <= 0) {
       removeItem(productId);
       return;
@@ -148,25 +197,25 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
           : line
       )
     );
-  };
+  }, [removeItem]);
 
-  const clearCart = () => setItems([]);
+  const clearCart = useCallback(() => setItems([]), []);
 
-  const getProductQuantity = (productId: string): number => {
+  const getProductQuantity = useCallback((productId: string): number => {
     return items.find((line) => line.product.id === productId)?.quantity ?? 0;
-  };
+  }, [items]);
 
-  const hydrateFromServer = (lines: CartLine[]) => {
+  const hydrateFromServer = useCallback((lines: CartLine[], options?: { forceReplace?: boolean }) => {
     setItems((current) => {
-      if (current.length > 0) {
+      if (!options?.forceReplace && current.length > 0) {
         return current;
       }
 
       return normalizeCartLines(lines);
     });
-  };
+  }, []);
 
-  const value = {
+  const value = useMemo(() => ({
     items,
     itemCount: items.reduce((count, line) => count + line.quantity, 0),
     addItem,
@@ -176,7 +225,7 @@ export function CartProvider({ children }: { children: React.ReactNode }) {
     hydrateFromServer,
     clearCart,
     isHydrated
-  };
+  }), [items, addItem, removeItem, updateQuantity, getProductQuantity, hydrateFromServer, clearCart, isHydrated]);
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
@@ -188,7 +237,7 @@ export const useCart = () => {
     throw new Error("useCart must be used within CartProvider");
   }
 
-  const summary = calculateCartSummary(context.items);
+  const summary = useMemo(() => calculateCartSummary(context.items), [context.items]);
 
   return {
     ...context,

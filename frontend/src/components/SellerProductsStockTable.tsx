@@ -9,6 +9,7 @@ import { api } from "@/services/api";
 import { Product } from "@/types";
 import { formatThaiBaht } from "@/utils/formatCurrency";
 import { getErrorMessage } from "@/utils/errorMessage";
+import { useTranslations } from "next-intl";
 
 interface SellerProductsStockTableProps {
   products: Product[];
@@ -17,27 +18,28 @@ interface SellerProductsStockTableProps {
 type FilterMode = "all" | "low" | "out";
 type SortMode = "quantity_desc" | "quantity_asc" | "price_desc" | "price_asc" | "title_asc";
 
-const resolveStockStatus = (quantity: number) => {
-  if (quantity <= 0) {
-    return { label: "Out of stock", className: "bg-rose-100 text-rose-700" };
-  }
-
-  if (quantity < 10) {
-    return { label: "Low stock", className: "bg-amber-100 text-amber-700" };
-  }
-
-  return { label: "Healthy", className: "bg-emerald-100 text-emerald-700" };
-};
-
 export function SellerProductsStockTable({ products }: SellerProductsStockTableProps) {
   const router = useRouter();
   const { pushToast } = useToast();
+  const t = useTranslations('seller.stockTable');
   const [rows, setRows] = useState<Product[]>(products);
   const [stockInputs, setStockInputs] = useState<Record<string, string>>({});
   const [busyProductId, setBusyProductId] = useState<string | null>(null);
   const [filterMode, setFilterMode] = useState<FilterMode>("all");
   const [sortMode, setSortMode] = useState<SortMode>("quantity_desc");
   const [query, setQuery] = useState("");
+
+  const resolveStockStatus = (quantity: number) => {
+    if (quantity <= 0) {
+      return { label: t("status.outOfStock"), className: "bg-rose-100 text-rose-700" };
+    }
+
+    if (quantity < 10) {
+      return { label: t("status.lowStock"), className: "bg-amber-100 text-amber-700" };
+    }
+
+    return { label: t("status.healthy"), className: "bg-emerald-100 text-emerald-700" };
+  };
 
   const filteredRows = useMemo(() => {
     const normalizedQuery = query.trim().toLowerCase();
@@ -78,7 +80,7 @@ export function SellerProductsStockTable({ products }: SellerProductsStockTableP
     const quantityAdded = Number(raw);
 
     if (!Number.isInteger(quantityAdded) || quantityAdded <= 0) {
-      pushToast("Please enter a valid stock quantity greater than zero.", "error");
+      pushToast(t("invalidQuantity"), "error");
       return;
     }
 
@@ -88,10 +90,10 @@ export function SellerProductsStockTable({ products }: SellerProductsStockTableP
       const updatedProduct = await api.addStock(productId, quantityAdded);
       setRows((current) => current.map((item) => (item.id === productId ? updatedProduct : item)));
       setStockInputs((current) => ({ ...current, [productId]: "" }));
-      pushToast(`Stock updated for "${updatedProduct.title}".`, "success");
+      pushToast(`${t("stockUpdated")} "${updatedProduct.title}".`, "success");
       router.refresh();
     } catch (error) {
-      const message = getErrorMessage(error, "Could not update stock. Please try again.");
+      const message = getErrorMessage(error, t("updateError"));
       pushToast(message, "error");
     } finally {
       setBusyProductId(null);
@@ -102,16 +104,16 @@ export function SellerProductsStockTable({ products }: SellerProductsStockTableP
     <section className="surface-card p-4">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h2 className="text-lg font-bold text-slate-900">Products</h2>
+          <h2 className="text-lg font-bold text-slate-900">{t("title")}</h2>
           <p className="text-xs text-slate-500">
-            {rows.length} total · {lowStockCount} low stock · {outOfStockCount} out of stock
+            {rows.length} รวม · {lowStockCount} สต็อกเหลือน้อย · {outOfStockCount} สต็อกหมด
           </p>
         </div>
         <Link
           href="/seller/add-product"
           className="rounded-xl bg-[#0b4f9f] px-3 py-2 text-sm font-semibold text-white transition hover:-translate-y-0.5 hover:bg-[#0e62c4]"
         >
-          Add Product
+          {t("addProduct")}
         </Link>
       </div>
 
@@ -121,7 +123,7 @@ export function SellerProductsStockTable({ products }: SellerProductsStockTableP
           value={query}
           onChange={(event) => setQuery(event.target.value)}
           className="form-input"
-          placeholder="Search by product title or description..."
+          placeholder={t("searchPlaceholder")}
         />
 
         <select
@@ -129,17 +131,17 @@ export function SellerProductsStockTable({ products }: SellerProductsStockTableP
           onChange={(event) => setFilterMode(event.target.value as FilterMode)}
           className="form-input min-w-[180px]"
         >
-          <option value="all">All inventory</option>
-          <option value="low">Low stock only</option>
-          <option value="out">Out of stock only</option>
+          <option value="all">{t("filters.all")}</option>
+          <option value="low">{t("filters.low")}</option>
+          <option value="out">{t("filters.out")}</option>
         </select>
 
         <select value={sortMode} onChange={(event) => setSortMode(event.target.value as SortMode)} className="form-input min-w-[180px]">
-          <option value="quantity_desc">Sort: Qty high to low</option>
-          <option value="quantity_asc">Sort: Qty low to high</option>
-          <option value="price_desc">Sort: Price high to low</option>
-          <option value="price_asc">Sort: Price low to high</option>
-          <option value="title_asc">Sort: Title A-Z</option>
+          <option value="quantity_desc">{t("sort.quantityDesc")}</option>
+          <option value="quantity_asc">{t("sort.quantityAsc")}</option>
+          <option value="price_desc">{t("sort.priceDesc")}</option>
+          <option value="price_asc">{t("sort.priceAsc")}</option>
+          <option value="title_asc">{t("sort.titleAsc")}</option>
         </select>
       </div>
 
@@ -147,18 +149,18 @@ export function SellerProductsStockTable({ products }: SellerProductsStockTableP
         <table className="min-w-full text-left text-sm">
           <thead className="border-b border-slate-200 text-slate-500">
             <tr>
-              <th className="px-3 py-3 font-semibold">Product</th>
-              <th className="px-3 py-3 font-semibold">Status</th>
-              <th className="px-3 py-3 font-semibold">Quantity</th>
-              <th className="px-3 py-3 font-semibold">Price</th>
-              <th className="px-3 py-3 font-semibold">Add Stock</th>
+              <th className="px-3 py-3 font-semibold">{t("table.product")}</th>
+              <th className="px-3 py-3 font-semibold">{t("table.status")}</th>
+              <th className="px-3 py-3 font-semibold">{t("table.quantity")}</th>
+              <th className="px-3 py-3 font-semibold">{t("table.price")}</th>
+              <th className="px-3 py-3 font-semibold">{t("table.addStock")}</th>
             </tr>
           </thead>
           <tbody>
             {filteredRows.length === 0 ? (
               <tr>
                 <td colSpan={5} className="px-3 py-6 text-center text-sm text-slate-500">
-                  No products match this filter.
+                  {t("noProducts")}
                 </td>
               </tr>
             ) : (
@@ -181,7 +183,7 @@ export function SellerProductsStockTable({ products }: SellerProductsStockTableP
                           min={1}
                           inputMode="numeric"
                           className="form-input h-10"
-                          placeholder="Qty"
+                          placeholder={t("table.qtyPlaceholder")}
                           value={stockInputs[product.id] ?? ""}
                           onChange={(event) => updateInput(product.id, event.target.value)}
                           disabled={isBusy}
@@ -193,7 +195,7 @@ export function SellerProductsStockTable({ products }: SellerProductsStockTableP
                           onClick={() => handleAddStock(product.id)}
                           disabled={isBusy}
                         >
-                          Add
+                          {t("table.add")}
                         </Button>
                         <Button
                           type="button"
@@ -202,7 +204,7 @@ export function SellerProductsStockTable({ products }: SellerProductsStockTableP
                           onClick={() => handleAddStock(product.id, 5)}
                           disabled={isBusy}
                         >
-                          +5
+                          {t("table.addFive")}
                         </Button>
                       </div>
                     </td>
